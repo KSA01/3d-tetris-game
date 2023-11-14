@@ -1,7 +1,7 @@
 # 3d-game
 
 How to run this project:
-git clone https://github.com/KSA01/3d-game
+"git clone https://github.com/KSA01/3d-game" in the folder or directory you desire
 
 Open in VSCode or Visual Studio to run
 
