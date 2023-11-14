@@ -44,7 +44,8 @@ def createTetrisPieces():
 
     def L():
         for i in range(cubeCount):
-            if i >= 3:
+            i -= 2
+            if i >= 1:
                 piece = Piece(position=((i - 2) * 2, 0, 0), color=colors[1], axis=axis[1]) 
             else:
                 piece = Piece(position=(0, i * -2, 0), color=colors[1], axis=axis[1])  
@@ -52,25 +53,26 @@ def createTetrisPieces():
 
     def T():
         for i in range(cubeCount):
-            if i >= 3:
-                piece = Piece(position=((i - 2) * 2, (i - 2) * -2, 0), color=colors[2], axis=axis[2])
+            i += 2
+            if i >= 5:
+                piece = Piece(position=((i - 2) * 2, (i - 4) * -2, 0), color=colors[2], axis=axis[2])
             else:
                 piece = Piece(position=(i * 2, 0, 0), color=colors[2], axis=axis[2]) 
             tetrisPieces.append(piece)
 
     def O():
-        piece0 = Piece(position=(0, 0, 0), color=colors[3], axis=axis[3])  
+        piece0 = Piece(position=(2, 2, 2), color=colors[3], axis=axis[3])  
         tetrisPieces.append(piece0)
-        piece1 = Piece(position=(2, 2, 0), color=colors[3], axis=axis[3])  
+        piece1 = Piece(position=(4, 4, 2), color=colors[3], axis=axis[3])  
         tetrisPieces.append(piece1)
-        piece2 = Piece(position=(0, 2, 0), color=colors[3], axis=axis[3])  
+        piece2 = Piece(position=(2, 4, 2), color=colors[3], axis=axis[3])  
         tetrisPieces.append(piece2)
-        piece3 = Piece(position=(2, 0, 0), color=colors[3], axis=axis[3])  
+        piece3 = Piece(position=(4, 2, 2), color=colors[3], axis=axis[3])  
         tetrisPieces.append(piece3)
 
     def I():
         for i in range(cubeCount):
-            piece = Piece(position=(i * -2, 0, 0), color=colors[4], axis=axis[4])  
+            piece = Piece(position=(i * -2, -2, 0), color=colors[4], axis=axis[4])  
             tetrisPieces.append(piece)
 
     def Z():
@@ -78,8 +80,8 @@ def createTetrisPieces():
         y = 0
         # Create instances of pieces and store them in a list
         for i in range(cubeCount):
-            i = i + 6
-            if i >= 8:
+            i = i + 4
+            if i >= 6:
                 i -= 1
             piece = Piece(position=(i * 2, y, 0), color=colors[5], axis=axis[5])  
             tetrisPieces.append(piece)
@@ -93,8 +95,8 @@ def createTetrisPieces():
         y = 0
         # Create instances of pieces and store them in a list
         for i in range(cubeCount):
-            i = i + 6
-            if i >= 8:
+            i = i + 4
+            if i >= 6:
                 i -= 1
             piece = Piece(position=(i * -2, y, 0), color=colors[6], axis=axis[6]) 
             tetrisPieces.append(piece)
@@ -125,11 +127,11 @@ class Piece:
     def __init__(self, position, color, axis):
         Init()
         self.cubes = [Cube(color, axis) for _ in range(cubeCount)]
-        self.position = position
+        self.position = position  #takes position of each piece and cubes
         self.ang = 0
-        self.axis = axis
-        self.color = np.asfarray(color)
-        self.vel = random.randint(1, 10)
+        self.axis = axis  #takes a different axis for each piece so they rotate differently
+        self.color = np.asfarray(color)  #takes a different color for each piece
+        self.vel = random.randrange(1, 3)
 
     def Update(self, deltaTime):
         self.ang += 50.0 * deltaTime

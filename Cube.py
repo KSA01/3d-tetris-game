@@ -40,15 +40,6 @@ _verts = np.float32([(1, -1, -1, 0, 0, -1, 0, 0),   # first - 8 vertices x 3
                     (-1, -1, 1, 0, -1, 0, 0, 1)
                     ])
 
-colors = (
-        [1,0,0], # Red 0
-        [0,1,0], # Green 1
-        [0,0,1], # Blue 2
-        [1,1,0], # Yellow 3
-        [0,1,1], # Cyan 4
-        [1,0.5,0], # Orange 5
-        [1,0,1]) # Purple 6
-
 def Init():
     global _shader
     global _vbo
