@@ -2,7 +2,9 @@
 
 How to run this project:
 git clone https://github.com/KSA01/3d-game
+
 Open in VSCode or Visual Studio to run
+
 
 Making a new branch and switch to it: git checkout -b your_branch_name
 
