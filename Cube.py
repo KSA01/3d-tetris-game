@@ -82,11 +82,12 @@ def Init():
     _vertex_normal = glGetAttribLocation(_shader, "vertex_normal")
 
 class Cube:
-    def __init__(self, color, axis):
+    def __init__(self, color, localPos):
         super().__init__()
         self.color = np.asfarray(color)
         self.ang = 0
-        self.axis = axis
+        self.axis = (3,1,1)
+        self.localPos = localPos   # Takes local positions of the current cube from pieces
 
     def Update(self, deltaTime):
         self.ang += 50.0 * deltaTime
@@ -123,9 +124,12 @@ class Cube:
             shaders.glUseProgram(0)
 
     def Render(self):
-        m = glGetDouble(GL_MODELVIEW_MATRIX)
+        #m = glGetDouble(GL_MODELVIEW_MATRIX)
 
+        glPushMatrix()
         glRotatef(self.ang, *self.axis)
+        glTranslatef(*self.localPos)     # Translates the local position of each cube from pieces.py
         self._DrawBlock()
+        glPopMatrix()
 
         #glLoadMatrixf(m)

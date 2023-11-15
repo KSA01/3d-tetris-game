@@ -9,6 +9,7 @@ from OpenGL.GLU import *
 #from SlowCube import SlowCube
 #import Cube
 import Pieces
+import Border
 
 pygame.init()
 size = width, height = 640, 750
@@ -21,13 +22,22 @@ glMatrixMode(GL_MODELVIEW)
 glEnable(GL_DEPTH_TEST)
 glDepthFunc(GL_LESS)
 
-glTranslate(0.0, 0.0, -48.0)     #translates the camera
+glTranslate(1.0, 0.0, -30.0)     #translates the camera
+glRotate(-15, 0, 1, 0)           #rotate -15 degrees around y
+glRotate(30, 1, 0, 0)            #rotate 30 degrees around x
 
 #Cube.Init()
 #cube = Cube.Cube()
 #cube = SlowCube()
 
 tetrisPieces = Pieces.createTetrisPieces()
+#print("NUM TETRIS PIECES: " + str(len(tetrisPieces)))
+
+tetrisCubes = 0
+for piece in tetrisPieces:
+    tetrisCubes += len(piece.cubes)
+
+#print("NUMBER OF CUBES: " + str(tetrisCubes))
 
 def Update(deltaTime):
     for event in pygame.event.get():
@@ -46,6 +56,8 @@ def Render():
     #cube.Render()
     for piece in tetrisPieces:
         piece.Render()
+
+    Border.Render()
 
     pygame.display.flip()
 

@@ -8,22 +8,13 @@ import random
 from Cube import Cube, Init
 
 colors = (
-        [1,0,0], # Red 0
-        [0,1,0], # Green 1
-        [0,0,1], # Blue 2
+        [0,1,1], # Cyan 0
+        [0,0,1], # Blue 1
+        [1,0.5,0], # Orange 2
         [1,1,0], # Yellow 3
-        [0,1,1], # Cyan 4
-        [1,0.5,0], # Orange 5
-        [1,0,1]) # Purple 6
-
-axis = (
-    [3,1,1], 
-    [0,1,1], 
-    [6,1,1], 
-    [3,1,4], 
-    [0,1,4], 
-    [6,1,4], 
-    [3,5,4]
+        [0,1,0], # Green 4
+        [1,0,1], # Purple 5
+        [1,0,0] # Red 6
 )
 
 pieceNames = ["I", "J", "L", "O", "S", "T", "Z"]  # List of pieces by name
@@ -34,102 +25,36 @@ def createTetrisPieces():
 
     tetrisPieces = []
 
-    def J():
-        for i in range(cubeCount):
-            if i >= 3:
-                piece = Piece(position=((i - 2) * -2, 0, 0), color=colors[0], axis=axis[0]) 
-            else:
-                piece = Piece(position=(0, i * -2, 0), color=colors[0], axis=axis[0])  
-            tetrisPieces.append(piece)
-
-    def L():
-        for i in range(cubeCount):
-            i -= 2
-            if i >= 1:
-                piece = Piece(position=((i - 2) * 2, 0, 0), color=colors[1], axis=axis[1]) 
-            else:
-                piece = Piece(position=(0, i * -2, 0), color=colors[1], axis=axis[1])  
-            tetrisPieces.append(piece)
-
-    def T():
-        for i in range(cubeCount):
-            i += 2
-            if i >= 5:
-                piece = Piece(position=((i - 2) * 2, (i - 4) * -2, 0), color=colors[2], axis=axis[2])
-            else:
-                piece = Piece(position=(i * 2, 0, 0), color=colors[2], axis=axis[2]) 
-            tetrisPieces.append(piece)
-
-    def O():
-        piece0 = Piece(position=(2, 2, 2), color=colors[3], axis=axis[3])  
-        tetrisPieces.append(piece0)
-        piece1 = Piece(position=(4, 4, 2), color=colors[3], axis=axis[3])  
-        tetrisPieces.append(piece1)
-        piece2 = Piece(position=(2, 4, 2), color=colors[3], axis=axis[3])  
-        tetrisPieces.append(piece2)
-        piece3 = Piece(position=(4, 2, 2), color=colors[3], axis=axis[3])  
-        tetrisPieces.append(piece3)
-
-    def I():
-        for i in range(cubeCount):
-            piece = Piece(position=(i * -2, -2, 0), color=colors[4], axis=axis[4])  
-            tetrisPieces.append(piece)
-
-    def Z():
-        counter = 0
-        y = 0
-        # Create instances of pieces and store them in a list
-        for i in range(cubeCount):
-            i = i + 4
-            if i >= 6:
-                i -= 1
-            piece = Piece(position=(i * 2, y, 0), color=colors[5], axis=axis[5])  
-            tetrisPieces.append(piece)
-            counter += 1
-            if counter >= 2:
-                y += 2
-                counter = 0
-
-    def S():
-        counter = 0
-        y = 0
-        # Create instances of pieces and store them in a list
-        for i in range(cubeCount):
-            i = i + 4
-            if i >= 6:
-                i -= 1
-            piece = Piece(position=(i * -2, y, 0), color=colors[6], axis=axis[6]) 
-            tetrisPieces.append(piece)
-            counter += 1
-            if counter >= 2:
-                y += 2
-                counter = 0
-
-    for name in pieceNames:
-        if name == "I":
-            I()
-        elif name == "J":
-            J()
-        elif name == "L":
-            L()
-        elif name == "O":
-            O()
-        elif name == "S":
-            S()
-        elif name == "T":
-            T()
-        elif name == "Z":
-            Z()
+    for i in range(len(pieceNames)):
+        piece = Piece(position=(0, 0, 0), color=colors[i], name=pieceNames[i]) 
+        tetrisPieces.append(piece)
 
     return tetrisPieces
 
 class Piece:
-    def __init__(self, position, color, axis):
+    def __init__(self, position, color, name):
         Init()
-        self.cubes = [Cube(color, axis) for _ in range(cubeCount)]
-        self.position = position  #takes position of each piece and cubes
+
+        self.name = name
+        if self.name == "I":
+            localPositions = [(-6, 6, 0), (-6, 6, -2), (-6, 6, -4), (-6, 6, 2)]
+        elif self.name == "J":
+            localPositions = [(0, 6, 0), (0, 8, 0), (-2, 8, 0), (0, 4, 0)]
+        elif self.name == "L":
+            localPositions = [(6, 6, 0), (6, 8, 0), (4, 8, 0), (6, 4, 0)]
+        elif self.name == "O":
+            localPositions = [(-6, -1, 0), (-8, -1, 0), (-6, -3, 0), (-8, -3, 0)]
+        elif self.name == "S":
+            localPositions = [(0, -1, 0), (-2, -1, 0), (-2, -3, 0), (-4, -3, 0)]
+        elif self.name == "T":
+            localPositions = [(6, -1, 0), (4, -1, 0), (8, -1, 0), (6, -3, 0)]
+        elif self.name == "Z":
+            localPositions = [(-4, -8, 0), (-2, -8, 0), (-2, -10, 0), (0, -10, 0)]
+
+        self.cubes = [Cube(color, localPos) for localPos in localPositions]
+        self.position = position        #takes position of each piece
         self.ang = 0
-        self.axis = axis  #takes a different axis for each piece so they rotate differently
+        self.axis = (3,1,1)             
         self.color = np.asfarray(color)  #takes a different color for each piece
         self.vel = random.randrange(1, 3)
 
@@ -137,10 +62,16 @@ class Piece:
         self.ang += 50.0 * deltaTime
 
     def Render(self):
-        m = glGetDouble(GL_MODELVIEW_MATRIX)
-        glRotatef(self.ang, *self.axis)
+        #m = glGetDouble(GL_MODELVIEW_MATRIX)
+        center = self.cubes[0].localPos
+
+        glPushMatrix()
         glTranslatef(*self.position)
+        glRotatef(self.ang, *center)
+
         for cube in self.cubes:
             cube.Render()
         
-        glLoadMatrixf(m)
+        glPopMatrix()
+        
+        #glLoadMatrixf(m)
