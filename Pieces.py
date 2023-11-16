@@ -7,6 +7,8 @@ import random
 
 from Cube import Cube, Init
 
+from Texture import Texture
+
 colors = (
         [0,1,1], # Cyan 0
         [0,0,1], # Blue 1
@@ -17,6 +19,20 @@ colors = (
         [1,0,0] # Red 6
 )
 
+filepaths = (
+    "blackberriesJ.png",
+    "orangeL.png",
+    "grapesT.png",
+    "bananaO.png",
+    "blueberryI.png",
+    "pearZ.png",
+    "strawberryS.png"
+)
+
+#BUG: Only the texture for Z is being used, because it is the last on this list
+#This could be a problem with texture coordinates, is the last image defining the coordinates to be on the pear image?
+#So it would be a problem in Texture.py?
+#Do I need to unbind the texture each time?
 pieceNames = ["I", "J", "L", "O", "S", "T", "Z"]  # List of pieces by name
 cubeCount = 4 # Amount of cubes per piece
 
@@ -26,14 +42,15 @@ def createTetrisPieces():
     tetrisPieces = []
 
     for i in range(len(pieceNames)):
-        piece = Piece(position=(0, 0, 0), color=colors[i], name=pieceNames[i]) 
+        print(i)
+        piece = Piece(position=(0, 0, 0), color=colors[i], name=pieceNames[i], filepath=filepaths[i]) 
         tetrisPieces.append(piece)
 
     return tetrisPieces
 
 class Piece:
-    def __init__(self, position, color, name):
-        Init()
+    def __init__(self, position, color, name, filepath):
+        #Init()
 
         self.name = name
         if self.name == "I":
@@ -51,7 +68,11 @@ class Piece:
         elif self.name == "Z":
             localPositions = [(-4, -8, 0), (-2, -8, 0), (-2, -10, 0), (0, -10, 0)]
 
-        self.cubes = [Cube(color, localPos) for localPos in localPositions]
+
+        self.filepath = filepath
+        print(filepath)
+
+        self.cubes = [Cube(color, localPos, filepath) for localPos in localPositions]
         self.position = position        #takes position of each piece
         self.ang = 0
         self.axis = (3,1,1)             

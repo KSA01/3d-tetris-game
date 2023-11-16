@@ -7,7 +7,7 @@ from pygame.locals import *
 from OpenGL.GL import *
 from OpenGL.GLU import *
 #from SlowCube import SlowCube
-#import Cube
+import Cube
 import Pieces
 import Border
 
@@ -26,7 +26,7 @@ glTranslate(1.0, 0.0, -30.0)     #translates the camera
 glRotate(-15, 0, 1, 0)           #rotate -15 degrees around y
 glRotate(30, 1, 0, 0)            #rotate 30 degrees around x
 
-#Cube.Init()
+Cube.Init()
 #cube = Cube.Cube()
 #cube = SlowCube()
 
