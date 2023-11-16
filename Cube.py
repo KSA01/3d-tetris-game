@@ -109,9 +109,8 @@ class Cube:
         self.filepath = filepath
 
 
-
+        #Generate the texture
         self.fruit_texture = Texture(self.filepath)
-        self.fruit_texture.use()
 
 
 
@@ -126,8 +125,12 @@ class Cube:
         global _position
         global _color
         global _vertex_normal
-
         global _uv_coords
+
+        
+        #Set the texture of the block
+        self.fruit_texture.use()
+
 
         shaders.glUseProgram(_shader)
 

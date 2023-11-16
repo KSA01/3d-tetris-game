@@ -20,12 +20,12 @@ colors = (
 )
 
 filepaths = (
+    "blueberryI.png",
     "blackberriesJ.png",
     "orangeL.png",
-    "grapesT.png",
     "bananaO.png",
-    "blueberryI.png",
     "pearZ.png",
+    "grapesT.png",
     "strawberryS.png"
 )
 
