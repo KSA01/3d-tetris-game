@@ -1,5 +1,4 @@
 # 3dmain.py
-# orthographic view
 
 import numpy as np
 import pygame
@@ -11,6 +10,7 @@ from SlowTriangle import SlowTriangle
 import Cube
 import Pieces
 import Border
+import GamePlay
 
 #Need to install for UI
 from freetype import *
@@ -34,6 +34,7 @@ glRotate(30, 1, 0, 0)            #rotate 30 degrees around x
 Cube.Init()
 #cube = Cube.Cube()
 #cube = SlowCube()
+GamePlay.Init()
 
 #UI
 triangle = SlowTriangle()
@@ -97,11 +98,15 @@ def Update(deltaTime):
     for event in pygame.event.get():
         if event.type == pygame.QUIT:
             return False
+        if GamePlay.ProcessEvent(event):
+            continue
+
+    #GamePlay.Update(deltaTime)
 
     #cube.Update(deltaTime)
-    for piece in tetrisPieces:
-        piece.Update(deltaTime)
-
+    #for piece in tetrisPieces:
+        #piece.Update(deltaTime)
+    GamePlay.Update(deltaTime, tetrisPieces)
 
     #UI
     triangle.Update(deltaTime)
@@ -114,8 +119,11 @@ def Render():
 
     #cube.Render()
     for piece in tetrisPieces:
-        piece.Render()
+        #piece.Render()
+        GamePlay.Render(piece)
 
+    #GamePlay.Render()
+    
     #UI
 
     # Setting up orthographic projection for text rendering
@@ -139,7 +147,7 @@ def Render():
 
     triangle.Render()
     #UI
-
+    
     Border.Render()
 
     pygame.display.flip()

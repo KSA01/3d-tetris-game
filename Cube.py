@@ -99,7 +99,7 @@ def Init():
     _uv_coords = glGetAttribLocation(_shader, "inTexCoord")
 
 class Cube:
-    def __init__(self, color, localPos, filepath):
+    def __init__(self, localPos, color=([0,0,1]), filepath="blueberryI.png"):
         #super().__init__()
         self.color = np.asfarray(color)
         self.ang = 0
@@ -108,14 +108,24 @@ class Cube:
 
         self.filepath = filepath
 
-
         #Generate the texture
         self.fruit_texture = Texture(self.filepath)
 
+    def GetCubePos(self):
+        return self.localPos
 
+    def SetCubePos(self, newPos):
+        self.localPos = newPos
 
-    def Update(self, deltaTime):
+    # Rotation function for cube
+    '''def Rotate(self, angle, axis):
+        self.ang += angle
+        rotation_matrix = axis_rotation_matrix(angle, axis)
+        self.localPos = np.dot(self.localPos, rotation_matrix)'''
+
+    def Update(self, deltaTime, move):
         self.ang += 50.0 * deltaTime
+        #self.localPos += move
 
     def _DrawBlock(self):
         global _shader
@@ -159,13 +169,29 @@ class Cube:
     
     #DIFF HERE
 
-    def Render(self):
+    def Render(self, scale_factor=0.75, block_spacing=0.25):  # Change these 2 values to adjust size
         #m = glGetDouble(GL_MODELVIEW_MATRIX)
 
         glPushMatrix()
-        glRotatef(self.ang, *self.axis)
-        glTranslatef(*self.localPos)     # Translates the local position of each cube from pieces.py
+        #glTranslatef(*self.localPos)     # Translates the local position of each cube from pieces.py
+        glScalef(scale_factor, scale_factor, scale_factor)
+        adjusted_translation = [pos * (scale_factor + block_spacing) for pos in self.localPos]
+        glTranslatef(*adjusted_translation)
+        #glRotatef(self.ang, *self.axis)
         self._DrawBlock()
         glPopMatrix()
 
         #glLoadMatrixf(m)
+
+
+# rotation matrix quaternians
+def axis_rotation_matrix(angle, axis):
+        axis = np.asarray(axis)
+        axis = axis / np.sqrt(np.dot(axis, axis))
+        a = np.cos(angle / 2.0)
+        b, c, d = -axis * np.sin(angle / 2.0)
+        aa, bb, cc, dd = a * a, b * b, c * c, d * d
+        bc, ad, ac, ab, bd, cd = b * c, a * d, a * c, a * b, b * d, c * d
+        return np.array([[aa + bb - cc - dd, 2 * (bc + ad), 2 * (bd - ac)],
+                        [2 * (bc - ad), aa + cc - bb - dd, 2 * (cd + ab)],
+                        [2 * (bd + ac), 2 * (cd - ab), aa + dd - bb - cc]])
