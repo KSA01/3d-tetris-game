@@ -17,3 +17,5 @@ Push to git branch: git push -u origin 'branch_name'
 git pull origin main before you start working on the branch
 
 Commit your changes to a seperate branch instead of always merging to main to preserve work
+
+Must install freetype for the UI: "pip install freetype-py"
