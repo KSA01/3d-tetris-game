@@ -55,7 +55,6 @@ def Init():
     global _uv_coords
 
 
-    #BUG: Some surfaces are transparent, even with value set to 1 (because color being multiplied by mult?)
     _VERTEX_SHADER = shaders.compileShader("""
         uniform mat4 inv;
         attribute vec3 position;
@@ -78,7 +77,7 @@ def Init():
             float mult = max(min(dt, 1.0), 0.0);
 
             /*NEW*/
-            vertex_color = color * mult;
+            vertex_color = vec4(color.xyz * mult, color.w);
 
             /*CHANGED*/
             /*vertex_color = vec4(color * mult, 0.8);*/
@@ -124,11 +123,46 @@ class Cube:
         #Generate the texture
         self.fruit_texture = Texture(self.filepath)
 
+        #NEW
+        #Tracks if the fade in animation is ongoing
+        self.appearing = True
+        #Tracks if the fade out animation is ongoing
+        self.disappearing = False
+
+
     def GetCubePos(self):
         return self.localPos
 
     def SetCubePos(self, newPos):
         self.localPos = newPos
+
+
+    #NEW
+    #Fade in a cube over 1/6 of a second
+    def FadeIn(self, deltaTime):
+        #If cube is appearing, increase alpha value by 6x the time passed
+        if self.appearing == True:
+            self.color[3] += (deltaTime * 6)
+
+            #If cube is now fully visible, restrain alpha to 1 and set appearing status to False
+            if self.color[3] >= 1:
+                self.color[3] = 1
+                self.color[3] = 1
+                self.appearing = False
+                print("Fully visible")
+        
+
+    #Fade out a cube over 1/6 of a second
+    def FadeOut(self, deltaTime):
+        #If piece is disappearing, decrease alpha value by 6x the time passed
+        if self.disappearing == True:
+            self.color[3] -= (deltaTime * 6)
+
+            #If piece is now fully transparent, restrain alpha to 0 and set disappearing status to False
+            if self.color[3] <= 0:
+                self.color[3] = 0
+                self.disappearing = False
+                print("Fully transparent")
 
     # Rotation function for cube
     '''def Rotate(self, angle, axis):

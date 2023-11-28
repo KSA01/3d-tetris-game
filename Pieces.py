@@ -32,10 +32,8 @@ filepaths = (
     "Textures/strawberryS.png"
 )
 
-#BUG: Only the texture for Z is being used, because it is the last on this list
-#This could be a problem with texture coordinates, is the last image defining the coordinates to be on the pear image?
-#So it would be a problem in Texture.py?
-#Do I need to unbind the texture each time?
+
+
 pieceNames = ["I", "J", "L", "O", "S", "T", "Z"]  # List of pieces by name
 cubeCount = 4 # Amount of cubes per piece
 
@@ -84,6 +82,18 @@ class Piece:
 
         self.transforms = [np.eye(4) for _ in range(cubeCount)]
 
+        #NEW
+        #Tracks the time since fade animation started (might not need)
+        self.animTime = 0
+        #Tracks if the fade in animation is ongoing
+        self.appearing = True
+        #Tracks if the fade out animation is ongoing
+        self.disappearing = False
+        #TEST
+        #Set cubes within piece to be fully transparent
+        for cube in self.cubes:
+            cube.color[3] = 0
+
     def GetPos(self):
         return self.position
 
@@ -105,6 +115,18 @@ class Piece:
     def Update(self, deltaTime, move):
         self.ang += 50.0 * deltaTime
         self.position += move
+
+        #NEW
+        #If piece is appearing, call fade in function for all of its cubes
+        if self.appearing == True:
+            for cube in self.cubes:
+                cube.FadeIn(deltaTime)
+        #Otherwise, if piece is disappearing, call fade out function for all of its cubes
+        elif self.disappearing == True:
+            for cube in self.cubes:
+                cube.FadeOut(deltaTime)
+
+
 
     def Render(self):
         #m = glGetDouble(GL_MODELVIEW_MATRIX)
