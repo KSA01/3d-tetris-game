@@ -23,9 +23,12 @@ screen = pygame.display.set_mode(size, DOUBLEBUF|OPENGL)
 glMatrixMode(GL_PROJECTION)
 gluPerspective(45, (width/height), 0.1, 50.0)
 glMatrixMode(GL_MODELVIEW)
-
 glEnable(GL_DEPTH_TEST)
 glDepthFunc(GL_LESS)
+
+#NEW
+glEnable(GL_BLEND)
+glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA)
 
 glTranslate(1.0, 0.0, -30.0)     #translates the camera
 glRotate(-15, 0, 1, 0)           #rotate -15 degrees around y
@@ -117,6 +120,10 @@ def Update(deltaTime):
 def Render():
     glClear(GL_COLOR_BUFFER_BIT|GL_DEPTH_BUFFER_BIT)
 
+    #NEW
+    #Render Border first so transparency works correctly
+    Border.Render()
+
     #cube.Render()
     for piece in tetrisPieces:
         #piece.Render()
@@ -148,7 +155,7 @@ def Render():
     triangle.Render()
     #UI
     
-    Border.Render()
+    #Border.Render()
 
     pygame.display.flip()
 

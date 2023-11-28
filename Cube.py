@@ -54,13 +54,19 @@ def Init():
 
     global _uv_coords
 
+
+    #BUG: Some surfaces are transparent, even with value set to 1 (because color being multiplied by mult?)
     _VERTEX_SHADER = shaders.compileShader("""
         uniform mat4 inv;
         attribute vec3 position;
-        uniform vec3 color;
-        attribute vec3 vertex_normal;
-        varying vec4 vertex_color;
                                            
+        /*uniform vec3 color;*/
+
+        /*NEW*/                          
+        uniform vec4 color;
+
+        attribute vec3 vertex_normal;
+        varying vec4 vertex_color;                               
         attribute vec2 inTexCoord;
         varying vec2 vertexTexCoord;
                                            
@@ -70,21 +76,29 @@ def Init():
             vec4 light = inv * vec4(0, 0, 1, 0);
             float dt = dot(light.xyz, vertex_normal);
             float mult = max(min(dt, 1.0), 0.0);
-            vertex_color = vec4(color * mult, 1.0);
+
+            /*NEW*/
+            vertex_color = color * mult;
+
+            /*CHANGED*/
+            /*vertex_color = vec4(color * mult, 0.8);*/
                                            
             vertexTexCoord = inTexCoord;
         }
     """, GL_VERTEX_SHADER)
 
     _FRAGMENT_SHADER = shaders.compileShader("""
-        varying vec4 vertex_color;
-                                             
+        varying vec4 vertex_color;           
         varying vec2 vertexTexCoord;
         uniform sampler2D myTex;
                                              
         void main()
         {
-            gl_FragColor = texture(myTex, vertexTexCoord) * vertex_color;
+            /*NEW*/
+            vec4 t = vec4(texture(myTex, vertexTexCoord).xyz, 1);
+            gl_FragColor = t * vertex_color;
+                                             
+            /*gl_FragColor = texture(myTex, vertexTexCoord) * vertex_color;*/
         }
     """, GL_FRAGMENT_SHADER)
 
@@ -95,11 +109,10 @@ def Init():
     _position = glGetAttribLocation(_shader, "position")
     _color = glGetUniformLocation(_shader, "color")
     _vertex_normal = glGetAttribLocation(_shader, "vertex_normal")
-
     _uv_coords = glGetAttribLocation(_shader, "inTexCoord")
 
 class Cube:
-    def __init__(self, localPos, color=([0,0,1]), filepath="blueberryI.png"):
+    def __init__(self, localPos, color=([0,0,1,1]), filepath="blueberryI.png"):
         #super().__init__()
         self.color = np.asfarray(color)
         self.ang = 0
@@ -146,7 +159,11 @@ class Cube:
 
         inv = np.linalg.inv(glGetDouble(GL_MODELVIEW_MATRIX))
         glUniformMatrix4fv(_uniformInv, 1, False, inv)
-        glUniform3fv(_color, 1, self.color)
+        
+        #glUniform3fv(_color, 1, self.color)
+        
+        #CHANGED
+        glUniform4fv(_color, 1, self.color)
 
         try:
             _vbo.bind()
@@ -167,7 +184,6 @@ class Cube:
         finally:
             shaders.glUseProgram(0)
     
-    #DIFF HERE
 
     def Render(self, scale_factor=0.75, block_spacing=0.25):  # Change these 2 values to adjust size
         #m = glGetDouble(GL_MODELVIEW_MATRIX)

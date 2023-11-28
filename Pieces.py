@@ -10,14 +10,16 @@ import GamePlay
 
 from Texture import Texture
 
+#CHANGED
+#Added transparency (color[3])
 colors = (
-        [0,1,1], # Cyan 0
-        [0,0,1], # Blue 1
-        [1,0.5,0], # Orange 2
-        [1,1,0], # Yellow 3
-        [0,1,0], # Green 4
-        [1,0,1], # Purple 5
-        [1,0,0] # Red 6
+        [0,1,1,1], # Cyan 0
+        [0,0,1,1], # Blue 1
+        [1,0.5,0,1], # Orange 2
+        [1,1,0,1], # Yellow 3
+        [0,1,0,1], # Green 4
+        [1,0,1,1], # Purple 5
+        [1,0,0,1] # Red 6
 )
 
 filepaths = (
