@@ -21,13 +21,13 @@ colors = (
 )
 
 filepaths = (
-    "blueberryI.png",
-    "blackberriesJ.png",
-    "orangeL.png",
-    "bananaO.png",
-    "pearZ.png",
-    "grapesT.png",
-    "strawberryS.png"
+    "Textures/blueberryI.png",
+    "Textures/blackberriesJ.png",
+    "Textures/orangeL.png",
+    "Textures/bananaO.png",
+    "Textures/pearZ.png",
+    "Textures/grapesT.png",
+    "Textures/strawberryS.png"
 )
 
 #BUG: Only the texture for Z is being used, because it is the last on this list
@@ -73,7 +73,7 @@ class Piece:
         self.filepath = filepath
         print(filepath)
 
-        self.cubes = [Cube(localPos, color, filepath) for localPos in localPositions]
+        self.cubes = [Cube(localPos, color, self.filepath) for localPos in localPositions]
         self.position = position        #takes position of each piece
         self.ang = 0
         self.axis = (3,1,1)             
