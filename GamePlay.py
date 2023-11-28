@@ -7,12 +7,18 @@ import math
 import random
 import Cube
 import Pieces
+import Triangle
 
 def Init():
     #global _pieces
     global _piece
     global OnStart
     global moveUp, moveDown, moveLeft, moveRight, rotateLeft, rotateRight, rotateDown
+
+    global _triangle
+
+    Triangle.Init()
+    _triangle = Triangle.Triangle(np.asfarray([-1,7,1]))
 
     #Cube.Init()
     Pieces.Init()
@@ -46,6 +52,20 @@ def ProcessEvent(event):
 
     return False
 
+# Global variables to track the state
+_currentObject = "cube"  # Start with the cube falling first
+_switchHeight = -5  # Height at which we switch objects
+
+_isGamePaused = False  # A new global variable to track the pause state
+
+def Pause():
+    global _isGamePaused
+    _isGamePaused = True
+
+def Resume():
+    global _isGamePaused
+    _isGamePaused = False
+
 index = random.randint(0, 6)
 
 def Update(deltaTime, pieces):
@@ -60,6 +80,26 @@ def Update(deltaTime, pieces):
         updatePos = (0, 6, -2)
         _piece.SetPos(updatePos)
         OnStart = False
+
+    if _currentObject == "cube":
+        # Update cube position
+        if _cube.GetPos()[1] + move[1] <= _switchHeight:
+            # If the cube reaches the switch height, reset its position and switch to the triangle
+            _cube.SetPos(np.asfarray([-1, 7, -1]))
+            _currentObject = "triangle"
+        else:
+            # Otherwise, just update the cube's position
+            _cube.Update(deltaTime, move)
+
+    elif _currentObject == "triangle":
+        # Update triangle position
+        if _triangle.GetPos()[1] + move[1] <= _switchHeight:
+            # If the triangle reaches the switch height, reset its position and switch to the cube
+            _triangle.SetPos(np.asfarray([-1, 7, 1]))
+            _currentObject = "cube"
+        else:
+            # Otherwise, just update the triangle's position
+            _triangle.Update(deltaTime, move)
 
     #move = np.asfarray([-4, 12, 0])
 
@@ -105,7 +145,12 @@ def Update(deltaTime, pieces):
 
 def Render(piece):
     global _piece
+    global _triangle
+    global _isGamePaused
 
     _piece = piece
 
-    _piece.Render()
+    if not _isGamePaused:
+        _piece.Render() 
+        _triangle.Render()
+

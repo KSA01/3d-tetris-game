@@ -38,6 +38,7 @@ Cube.Init()
 #cube = Cube.Cube()
 #cube = SlowCube()
 GamePlay.Init()
+_isPaused = False  
 
 #UI
 triangle = SlowTriangle()
@@ -98,18 +99,33 @@ def render_text(text, x, y, font_size):
 
 
 def Update(deltaTime):
+    global _isPaused  # Access the global pause variable
+
     for event in pygame.event.get():
         if event.type == pygame.QUIT:
             return False
+        if event.type == pygame.KEYDOWN:
+            if event.key == pygame.K_ESCAPE:  # Check if ESC key is pressed
+                _isPaused = not _isPaused  # Toggle the pause state
+                if _isPaused:
+                    GamePlay.Pause()  # Call a new function to handle pause in GamePlay
+                else:
+                    GamePlay.Resume()  # Call a new function to handle resume in GamePlay
+                continue
+        if _isPaused:
+            continue  # Skip the rest of the loop if the game is paused
         if GamePlay.ProcessEvent(event):
             continue
+
+    if not _isPaused:  # Only update game state if not paused
+        GamePlay.Update(deltaTime, tetrisPieces)
 
     #GamePlay.Update(deltaTime)
 
     #cube.Update(deltaTime)
     #for piece in tetrisPieces:
         #piece.Update(deltaTime)
-    GamePlay.Update(deltaTime, tetrisPieces)
+    # GamePlay.Update(deltaTime, tetrisPieces)
 
     #UI
     triangle.Update(deltaTime)
