@@ -61,6 +61,11 @@ def Update(deltaTime, pieces):
         _piece.SetPos(updatePos)
         OnStart = False
 
+        #NEW
+        #Toggle cubes of piece to fade in
+        _piece.ToggleCubes(True, False)
+
+
     #move = np.asfarray([-4, 12, 0])
 
     # Check if piece hits the bottom
@@ -69,6 +74,12 @@ def Update(deltaTime, pieces):
         index = random.randint(0, 6)
         OnStart = True
         move[1] += 24
+
+    #NEW
+    #Check if piece is close to bottom
+    if move[1] + _piece.GetPos()[1] <= -4:
+        #Toggle cubes of piece to fade out
+        _piece.ToggleCubes(False, True)
 
     # Check if piece is not at z limit then move
     if _piece.GetPos()[2] >= -4:
