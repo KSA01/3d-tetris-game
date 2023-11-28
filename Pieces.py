@@ -82,17 +82,14 @@ class Piece:
 
         self.transforms = [np.eye(4) for _ in range(cubeCount)]
 
-        #NEW
-        #Tracks the time since fade animation started (might not need)
-        self.animTime = 0
-        #Tracks if the fade in animation is ongoing
-        self.appearing = True
-        #Tracks if the fade out animation is ongoing
-        self.disappearing = False
+
         #TEST
-        #Set cubes within piece to be fully transparent
+        #Set cubes within piece to be fully transparent on init
         for cube in self.cubes:
             cube.color[3] = 0
+
+        #Toggle cubes to appear
+        self.ToggleCubes(True, False)
 
     def GetPos(self):
         return self.position
@@ -106,6 +103,14 @@ class Piece:
             newPosition = np.add(position, localPos)
             cube.SetCubePos(newPosition)'''
         
+    #NEW
+    #Change the value of appearing and disappearing for all cubes within piece (pass in a boolean for appear and disappear)
+    def ToggleCubes(self, appear, disappear):
+        for cube in self.cubes:
+            cube.appearing = appear
+            cube.disappearing = disappear
+
+        
     # Rotation function for piece
     def Rotate(self, angle, axis):
         rotation_matrix = axis_rotation_matrix(angle, axis)
@@ -116,15 +121,10 @@ class Piece:
         self.ang += 50.0 * deltaTime
         self.position += move
 
-        #NEW
-        #If piece is appearing, call fade in function for all of its cubes
-        if self.appearing == True:
-            for cube in self.cubes:
-                cube.FadeIn(deltaTime)
-        #Otherwise, if piece is disappearing, call fade out function for all of its cubes
-        elif self.disappearing == True:
-            for cube in self.cubes:
-                cube.FadeOut(deltaTime)
+        #TEST: Update Cubes within piece
+        for cube in self.cubes:
+            cube.Update(deltaTime, move)
+
 
 
 

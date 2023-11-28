@@ -125,7 +125,7 @@ class Cube:
 
         #NEW
         #Tracks if the fade in animation is ongoing
-        self.appearing = True
+        self.appearing = False
         #Tracks if the fade out animation is ongoing
         self.disappearing = False
 
@@ -173,6 +173,14 @@ class Cube:
     def Update(self, deltaTime, move):
         self.ang += 50.0 * deltaTime
         #self.localPos += move
+
+        #NEW
+        #If cube is appearing, call fade in function
+        if self.appearing == True:
+            self.FadeIn(deltaTime)
+        #Otherwise, if cube is disappearing, call fade out function
+        elif self.disappearing == True:
+            self.FadeOut(deltaTime)
 
     def _DrawBlock(self):
         global _shader
