@@ -48,6 +48,18 @@ def ProcessEvent(event):
 
 index = random.randint(0, 6)
 
+#ALFREDO
+_isGamePaused = False  # A new global variable to track the pause state
+
+def Pause():
+    global _isGamePaused
+    _isGamePaused = True
+
+def Resume():
+    global _isGamePaused
+    _isGamePaused = False
+#ALFREDO
+
 def Update(deltaTime, pieces):
     global _piece
     global index
