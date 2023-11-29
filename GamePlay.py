@@ -51,25 +51,32 @@ index = random.randint(0, 6)
 #ALFREDO
 _isGamePaused = False  # A new global variable to track the pause state
 
-def Pause():
+def Pause(pieces):
     global _isGamePaused
     #NEW
-    global _piece #BUG: _piece is always Z, so only Z block fade is toggled
+    global _piece #BUG: _piece is always Z, so only Z block fade is toggled. WHY is piece not updated globally?
     #NEW
+
+    #TEST
+    _piece = pieces[index]
 
     print("pause")
     print(_piece.name)
+    print(index)
 
     _isGamePaused = True
     #TODO: When this function is called, trigger all cubes on screen to disappear (on final assignment)
     #Toggle current piece to disappear
     _piece.ToggleCubes(False, True)
 
-def Resume():
+def Resume(pieces):
     global _isGamePaused
     #NEW
     global _piece #BUG: _piece is always Z, so only Z block fade is toggled
     #NEW
+
+    #TEST
+    _piece = pieces[index]
 
     print("unpause")
     print(_piece.name)
@@ -80,6 +87,7 @@ def Resume():
     #Toggle current piece to appear
     _piece.ToggleCubes(True, False)
 
+
 def Update(deltaTime, pieces):
     global _piece
     global index
@@ -87,6 +95,9 @@ def Update(deltaTime, pieces):
     global moveUp, moveDown, moveLeft, moveRight, rotateLeft, rotateRight, rotateDown
 
     _piece = pieces[index]
+
+    #TEST
+    #print(_piece.name) #Prints the correct current piece
 
     if OnStart:
         updatePos = (0, 6, -2)
