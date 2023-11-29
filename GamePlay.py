@@ -53,12 +53,32 @@ _isGamePaused = False  # A new global variable to track the pause state
 
 def Pause():
     global _isGamePaused
+    #NEW
+    global _piece #BUG: _piece is always Z, so only Z block fade is toggled
+    #NEW
+
+    print("pause")
+    print(_piece.name)
+
     _isGamePaused = True
+    #TODO: When this function is called, trigger all cubes on screen to disappear (on final assignment)
+    #Toggle current piece to disappear
+    _piece.ToggleCubes(False, True)
 
 def Resume():
     global _isGamePaused
+    #NEW
+    global _piece #BUG: _piece is always Z, so only Z block fade is toggled
+    #NEW
+
+    print("unpause")
+    print(_piece.name)
+
     _isGamePaused = False
 #ALFREDO
+    #TODO: When this function is called, trigger all cubes on screen to appear (on final assignment)
+    #Toggle current piece to appear
+    _piece.ToggleCubes(True, False)
 
 def Update(deltaTime, pieces):
     global _piece
@@ -124,7 +144,7 @@ def Update(deltaTime, pieces):
         _piece.Rotate(90, (0, -2, 0))
         rotateDown = False
 
-    _piece.Update(deltaTime, move)
+    _piece.Update(deltaTime, move, _isGamePaused)
 
 def Render(piece):
     global _piece

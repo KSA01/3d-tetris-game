@@ -117,11 +117,16 @@ class Piece:
         for cube in self.cubes:
             cube.localPos = np.dot(cube.localPos, rotation_matrix)
 
-    def Update(self, deltaTime, move):
-        self.ang += 50.0 * deltaTime
-        self.position += move
+    #NOTE: Fading in/out can no longer be paused (because this update is no longer locked behind pause status)
+    def Update(self, deltaTime, move, paused): #NEW: Takes pause status to gatekeep all update actions except fade
+        #NEW
+        #If the game is paused, don't update position
+        if not paused:
+        #NEW
+            self.ang += 50.0 * deltaTime
+            self.position += move
 
-        #TEST: Update Cubes within piece
+        #TEST: Update Cubes within piece regardless of pause status
         for cube in self.cubes:
             cube.Update(deltaTime, move)
 

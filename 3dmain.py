@@ -130,10 +130,15 @@ def Update(deltaTime):
     #for piece in tetrisPieces:
         #piece.Update(deltaTime)
     
+    #BOOKMARK: This is where game loop checks for pause
     #ALFREDO
-    if not _isPaused: # Only update game state if not paused
+    #if not _isPaused: # Only update game state if not paused
     #ALFREDO
-        GamePlay.Update(deltaTime, tetrisPieces)
+        #GamePlay.Update(deltaTime, tetrisPieces)
+
+    
+    GamePlay.Update(deltaTime, tetrisPieces)
+    
 
     #UI
     triangle.Update(deltaTime)
