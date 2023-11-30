@@ -100,8 +100,6 @@ def Update(deltaTime, pieces):
         _piece.ToggleCubes(True, False)
 
 
-    #move = np.asfarray([-4, 12, 0])
-
     # Check if piece hits the bottom
     move = np.asfarray([0, -2*deltaTime, 0])
     if move[1] + _piece.GetPos()[1] <= -5:
