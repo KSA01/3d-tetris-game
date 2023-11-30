@@ -167,6 +167,6 @@ def Update(deltaTime, pieces):
 def Render(piece):
     global _piece
 
-    _piece = piece
+    #_piece = piece
 
     _piece.Render()

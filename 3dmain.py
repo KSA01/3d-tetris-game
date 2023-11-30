@@ -122,14 +122,6 @@ def render_text(text, x, y, font_size):
 
 #UI
 
-def initialize_gameplay(callback):
-    # Your gameplay initialization code
-    # Pass the render_image function as a callback
-    callback(render_image)
-
-
-
-
 
 
 def Update(deltaTime):
@@ -229,6 +221,3 @@ while Update(_gDeltaTime):
     t = pygame.time.get_ticks()
     _gDeltaTime = (t - _gTickLastFrame) / 1000.0
     _gTickLastFrame = t
-
-if __name__ == "__main__":
-    initialize_gameplay()
