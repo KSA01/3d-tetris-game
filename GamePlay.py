@@ -6,6 +6,17 @@ import numpy as np
 import math
 import random
 import Pieces
+import UI
+
+icons = (
+    "Icons/IIcon.png",
+    "Icons/JIcon.png",
+    "Icons/LIcon.png",
+    "Icons/OIcon.png",
+    "Icons/SIcon.png",
+    "Icons/TIcon.png",
+    "Icons/ZIcon.png"
+)
 
 def Init():
     global _piece
@@ -105,6 +116,8 @@ def Update(deltaTime, pieces):
         #Update index to next index and grab a new next index
         index = nextIndex
         nextIndex = random.randint(0, 6)
+        # Redner next image icon
+        #UI.render_image(75, 50, 50, 200, icons[nextIndex])
         #NEW
         #index = random.randint(0, 6)
         OnStart = True
@@ -152,6 +165,6 @@ def Update(deltaTime, pieces):
 def Render(piece):
     global _piece
 
-    _piece = piece
+    #_piece = piece
 
     _piece.Render()
