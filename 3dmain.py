@@ -23,9 +23,12 @@ screen = pygame.display.set_mode(size, DOUBLEBUF|OPENGL)
 glMatrixMode(GL_PROJECTION)
 gluPerspective(45, (width/height), 0.1, 50.0)
 glMatrixMode(GL_MODELVIEW)
-
 glEnable(GL_DEPTH_TEST)
 glDepthFunc(GL_LESS)
+
+#NEW
+glEnable(GL_BLEND)
+glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA)
 
 glTranslate(1.0, 0.0, -30.0)     #translates the camera
 glRotate(-15, 0, 1, 0)           #rotate -15 degrees around y
@@ -35,6 +38,10 @@ Cube.Init()
 #cube = Cube.Cube()
 #cube = SlowCube()
 GamePlay.Init()
+
+#ALFREDO
+_isPaused = False
+#ALFREDO
 
 #UI
 triangle = SlowTriangle()
@@ -95,9 +102,25 @@ def render_text(text, x, y, font_size):
 
 
 def Update(deltaTime):
+    #ALFREDO
+    global _isPaused #Access the global pause variable
+    #ALFREDO
+
     for event in pygame.event.get():
         if event.type == pygame.QUIT:
             return False
+        #ALFREDO
+        if event.type == pygame.KEYDOWN and event.key == pygame.K_ESCAPE: #Check if ESC key is pressed
+            _isPaused = not _isPaused #Toggle the pause state
+            if _isPaused:
+                GamePlay.Pause(tetrisPieces) # Call a new function to handle pause in GamePlay
+            else:
+                GamePlay.Resume(tetrisPieces) # Call a new function to handle resume in GamePlay
+            continue
+        if _isPaused:
+            continue # Skip the rest of the loop if the game is paused
+        #ALFREDO
+
         if GamePlay.ProcessEvent(event):
             continue
 
@@ -106,7 +129,16 @@ def Update(deltaTime):
     #cube.Update(deltaTime)
     #for piece in tetrisPieces:
         #piece.Update(deltaTime)
+    
+    #BOOKMARK: This is where game loop checks for pause
+    #ALFREDO
+    #if not _isPaused: # Only update game state if not paused
+    #ALFREDO
+        #GamePlay.Update(deltaTime, tetrisPieces)
+
+    
     GamePlay.Update(deltaTime, tetrisPieces)
+    
 
     #UI
     triangle.Update(deltaTime)
@@ -116,6 +148,10 @@ def Update(deltaTime):
 
 def Render():
     glClear(GL_COLOR_BUFFER_BIT|GL_DEPTH_BUFFER_BIT)
+
+    #NEW
+    #Render Border first so transparency works correctly
+    Border.Render()
 
     #cube.Render()
     for piece in tetrisPieces:
@@ -148,7 +184,7 @@ def Render():
     triangle.Render()
     #UI
     
-    Border.Render()
+    #Border.Render()
 
     pygame.display.flip()
 

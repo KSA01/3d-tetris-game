@@ -48,6 +48,46 @@ def ProcessEvent(event):
 
 index = random.randint(0, 6)
 
+#ALFREDO
+_isGamePaused = False  # A new global variable to track the pause state
+
+def Pause(pieces):
+    global _isGamePaused
+    #NEW
+    global _piece #BUG: _piece is always Z, so only Z block fade is toggled. WHY is piece not updated globally?
+    #NEW
+
+    #TEST
+    _piece = pieces[index]
+
+    print("pause")
+    print(_piece.name)
+    print(index)
+
+    _isGamePaused = True
+    #TODO: When this function is called, trigger all cubes on screen to disappear (on final assignment)
+    #Toggle current piece to disappear
+    _piece.ToggleCubes(False, True)
+
+def Resume(pieces):
+    global _isGamePaused
+    #NEW
+    global _piece #BUG: _piece is always Z, so only Z block fade is toggled
+    #NEW
+
+    #TEST
+    _piece = pieces[index]
+
+    print("unpause")
+    print(_piece.name)
+
+    _isGamePaused = False
+#ALFREDO
+    #TODO: When this function is called, trigger all cubes on screen to appear (on final assignment)
+    #Toggle current piece to appear
+    _piece.ToggleCubes(True, False)
+
+
 def Update(deltaTime, pieces):
     global _piece
     global index
@@ -56,10 +96,18 @@ def Update(deltaTime, pieces):
 
     _piece = pieces[index]
 
+    #TEST
+    #print(_piece.name) #Prints the correct current piece
+
     if OnStart:
         updatePos = (0, 6, -2)
         _piece.SetPos(updatePos)
         OnStart = False
+
+        #NEW
+        #Toggle cubes of piece to fade in
+        _piece.ToggleCubes(True, False)
+
 
     #move = np.asfarray([-4, 12, 0])
 
@@ -69,6 +117,12 @@ def Update(deltaTime, pieces):
         index = random.randint(0, 6)
         OnStart = True
         move[1] += 24
+
+    #NEW
+    #Check if piece is close to bottom
+    if move[1] + _piece.GetPos()[1] <= -4:
+        #Toggle cubes of piece to fade out
+        _piece.ToggleCubes(False, True)
 
     # Check if piece is not at z limit then move
     if _piece.GetPos()[2] >= -4:
@@ -101,7 +155,7 @@ def Update(deltaTime, pieces):
         _piece.Rotate(90, (0, -2, 0))
         rotateDown = False
 
-    _piece.Update(deltaTime, move)
+    _piece.Update(deltaTime, move, _isGamePaused)
 
 def Render(piece):
     global _piece

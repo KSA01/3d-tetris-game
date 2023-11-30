@@ -11,30 +11,30 @@ from Cube import * #Cube, Init, axis_rotation_matrix
 
 from Texture import Texture
 
+#CHANGED
+#Added transparency (color[3])
 colors = (
-        [0,1,1], # Cyan 0
-        [0,0,1], # Blue 1
-        [1,0.5,0], # Orange 2
-        [1,1,0], # Yellow 3
-        [0,1,0], # Green 4
-        [1,0,1], # Purple 5
-        [1,0,0] # Red 6
+        [0,1,1,1], # Cyan 0
+        [0,0,1,1], # Blue 1
+        [1,0.5,0,1], # Orange 2
+        [1,1,0,1], # Yellow 3
+        [0,1,0,1], # Green 4
+        [1,0,1,1], # Purple 5
+        [1,0,0,1] # Red 6
 )
 
 filepaths = (
-    "blueberryI.png",
-    "blackberriesJ.png",
-    "orangeL.png",
-    "bananaO.png",
-    "pearZ.png",
-    "grapesT.png",
-    "strawberryS.png"
+    "Textures/blueberryI.png",
+    "Textures/blackberriesJ.png",
+    "Textures/orangeL.png",
+    "Textures/bananaO.png",
+    "Textures/pearZ.png",
+    "Textures/grapesT.png",
+    "Textures/strawberryS.png"
 )
 
-#BUG: Only the texture for Z is being used, because it is the last on this list
-#This could be a problem with texture coordinates, is the last image defining the coordinates to be on the pear image?
-#So it would be a problem in Texture.py?
-#Do I need to unbind the texture each time?
+
+
 pieceNames = ["I", "J", "L", "O", "S", "T", "Z"]  # List of pieces by name
 cubeCount = 4 # Amount of cubes per piece
 
@@ -74,7 +74,7 @@ class Piece:
         self.filepath = filepath
         #print(filepath)
 
-        self.cubes = [Cube(localPos, color, filepath) for localPos in localPositions]
+        self.cubes = [Cube(localPos, color, self.filepath) for localPos in localPositions]
         self.position = position        #takes position of each piece
         self.ang = 0
         self.axis = (3,1,1)             
@@ -83,6 +83,15 @@ class Piece:
         self.rotation_quat = (1, 0, 0, 0)  # Initialize rotation quaternion
 
         self.transforms = [np.eye(4) for _ in range(cubeCount)]
+
+
+        #TEST
+        #Set cubes within piece to be fully transparent on init
+        for cube in self.cubes:
+            cube.color[3] = 0
+
+        #Toggle cubes to appear
+        self.ToggleCubes(True, False)
 
     def GetPos(self):
         return self.position
@@ -95,6 +104,14 @@ class Piece:
             localPos = cube.GetCubePos()
             newPosition = np.add(position, localPos)
             cube.SetCubePos(newPosition)'''
+        
+    #NEW
+    #Change the value of appearing and disappearing for all cubes within piece (pass in a boolean for appear and disappear)
+    def ToggleCubes(self, appear, disappear):
+        for cube in self.cubes:
+            cube.appearing = appear
+            cube.disappearing = disappear
+
         
     # Rotation function for piece
     def Rotate(self, angle, axis):
@@ -124,9 +141,21 @@ class Piece:
             cube.localPos = newPos
             print(cube.localPos)'''
 
-    def Update(self, deltaTime, move):
-        self.ang += 50.0 * deltaTime
-        self.position += move
+    #NOTE: Fading in/out can no longer be paused (because this update is no longer locked behind pause status)
+    def Update(self, deltaTime, move, paused): #NEW: Takes pause status to gatekeep all update actions except fade
+        #NEW
+        #If the game is paused, don't update position
+        if not paused:
+        #NEW
+            self.ang += 50.0 * deltaTime
+            self.position += move
+
+        #TEST: Update Cubes within piece regardless of pause status
+        for cube in self.cubes:
+            cube.Update(deltaTime, move)
+
+
+
 
     def Render(self):
         #m = glGetDouble(GL_MODELVIEW_MATRIX)
