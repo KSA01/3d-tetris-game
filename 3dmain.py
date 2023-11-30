@@ -11,6 +11,8 @@ import Cube
 import Pieces
 import Border
 import GamePlay
+import UI
+#from GamePlay import initialize_gameplay
 
 #Need to install for UI
 from freetype import *
@@ -58,33 +60,6 @@ for piece in tetrisPieces:
 
 
 #UI
-def render_image(x, y, width, height, image_path):
-    """ Renders an image onto the screen with specified width and height """
-    image_surface = pygame.image.load(image_path)
-    image_surface = pygame.transform.scale(image_surface, (width, height))
-    image_data = pygame.image.tostring(image_surface, "RGBA", True)
-
-    image_texture = glGenTextures(1)
-    glBindTexture(GL_TEXTURE_2D, image_texture)
-    # Set texture parameters
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR)
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR)
-    # Create texture
-    glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, width, height, 0, GL_RGBA, GL_UNSIGNED_BYTE, image_data)
-
-    # Render the image as a texture
-    glEnable(GL_TEXTURE_2D)
-    glBindTexture(GL_TEXTURE_2D, image_texture)
-    glBegin(GL_QUADS)
-    # Map the image texture onto a quad
-    glTexCoord2f(0, 1); glVertex2f(x, y)
-    glTexCoord2f(1, 1); glVertex2f(x + width, y)
-    glTexCoord2f(1, 0); glVertex2f(x + width, y + height)
-    glTexCoord2f(0, 0); glVertex2f(x, y + height)
-    glEnd()
-    glDisable(GL_TEXTURE_2D)
-
-
 
 # Font settings for rendering text
 font_path = "font/Freedom-10eM.ttf"  # Replace with your font file path
@@ -119,11 +94,6 @@ def render_text(text, x, y, font_size):
     #glDeleteTextures(text_texture)
 
 #UI
-
-
-
-
-
 
 
 
@@ -197,12 +167,6 @@ def Render():
     glPushMatrix()
     glLoadIdentity()
     
-    #TEST
-    #Render the image
-    image_path = "Icons/IIcon.png"
-    render_image(75, 50, 50, 200, image_path)
-    #TEST
-
     # Render the text
     render_text("  next", 10, 10, 48)
 

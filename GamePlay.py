@@ -7,16 +7,6 @@ import math
 import random
 import Pieces
 
-icons = (
-    "Icons/IIcon.png",
-    "Icons/JIcon.png",
-    "Icons/LIcon.png",
-    "Icons/OIcon.png",
-    "Icons/SIcon.png",
-    "Icons/TIcon.png",
-    "Icons/ZIcon.png"
-)
-
 def Init():
     global _piece
     #NEW
@@ -115,7 +105,8 @@ def Update(deltaTime, pieces):
         #Update index to next index and grab a new next index
         index = nextIndex
         nextIndex = random.randint(0, 6)
-
+        #NEW
+        #index = random.randint(0, 6)
         OnStart = True
         move[1] += 24
 
@@ -139,7 +130,7 @@ def Update(deltaTime, pieces):
         if moveLeft:
             move[0] += -2
             moveLeft = False
-    if _piece.GetPos()[0] <= 3:
+    if _piece.GetPos()[0] <= 1.5:
         if moveRight:
             move[0] += 2
             moveRight = False
@@ -161,6 +152,6 @@ def Update(deltaTime, pieces):
 def Render(piece):
     global _piece
 
-    #_piece = piece #Commented out, this line was causing _piece to be set to Z every frame
+    _piece = piece
 
     _piece.Render()
