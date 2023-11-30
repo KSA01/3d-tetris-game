@@ -115,31 +115,13 @@ class Piece:
         
     # Rotation function for piece
     def Rotate(self, angle, axis):
-        '''rotation_quat = axis_rotation_quaternion(angle, axis)
-        self.rotation_quat = q_mult(self.rotation_quat, rotation_quat)
+        # Convert angle to radians
+        angle = math.radians(angle)
+        center = np.asfarray(self.cubes[0].localPos)
+        rotation_matrix = axis_rotation_matrix(angle, axis)
 
         for cube in self.cubes:
-            # Rotate each cube using the quaternion
-            rotated_position = qv_mult(rotation_quat, cube.localPos)
-            cube.localPos = rotated_position'''
-        
-        axis_quaternion = quaternion.from_rotation_vector(np.radians(angle) * np.array(axis) / np.linalg.norm(axis))
-
-        for cube in self.cubes:
-            local_pos_quaternion = quaternion.quaternion(0, *map(float, cube.localPos))
-            rotated_pos_quaternion = axis_quaternion * local_pos_quaternion * axis_quaternion.conj()
-            cube.localPos = np.imag(rotated_pos_quaternion)[1:]
-        
-        self.rotation_quat = quaternion.multiply(axis_quaternion, self.rotation_quat)
-
-        '''rotation_matrix = axis_rotation_matrix(angle, axis)
-        for cube in self.cubes:
-            newPos = np.dot(cube.localPos, rotation_matrix)
-            print(newPos)
-            for i in range(3):
-                newPos[i] = round(newPos[i])
-            cube.localPos = newPos
-            print(cube.localPos)'''
+            cube.localPos = np.rint(np.dot(cube.localPos - center, rotation_matrix)) + center
 
     #NOTE: Fading in/out can no longer be paused (because this update is no longer locked behind pause status)
     def Update(self, deltaTime, move, paused): #NEW: Takes pause status to gatekeep all update actions except fade
@@ -162,8 +144,6 @@ class Piece:
         #center = self.cubes[0].localPos
 
         glPushMatrix()
-        # Apply rotation to the cube
-        #glMultMatrixf(q_to_mat4(self.rotation_quat))
         glTranslatef(*self.position)
         #glRotatef(self.ang, *center)
         for cube in self.cubes:

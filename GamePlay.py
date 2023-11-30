@@ -5,19 +5,14 @@ from OpenGL.GL import *
 import numpy as np
 import math
 import random
-import Cube
 import Pieces
 
 def Init():
-    #global _pieces
     global _piece
     global OnStart
     global moveUp, moveDown, moveLeft, moveRight, rotateLeft, rotateRight, rotateDown
 
-    #Cube.Init()
     Pieces.Init()
-    #_pieces = Pieces.tetrisPieces
-    #_cube = Cube.Cube(np.asfarray([-1,7,-1]))
     OnStart = True
     moveUp, moveDown, moveLeft, moveRight, rotateLeft, rotateRight, rotateDown = False, False, False, False, False, False, False
 
@@ -27,16 +22,12 @@ def ProcessEvent(event):
     if event.type == pygame.KEYDOWN:
         if event.key == pygame.K_LEFT:
             moveLeft = True
-            #piece.Move((-2, 0, 0))
         elif event.key == pygame.K_RIGHT:
             moveRight = True
-            #piece.Move((2, 0, 0))
         elif event.key == pygame.K_DOWN:
             moveDown = True
-            #piece.Move((0, 0, 2))
         elif event.key == pygame.K_UP:
             moveUp = True
-            #piece.Rotate(90, (0, 0, -2))
         elif event.key == pygame.K_a:
             rotateLeft = True
         elif event.key == pygame.K_d:
@@ -146,13 +137,13 @@ def Update(deltaTime, pieces):
 
     # Rotate piece
     if rotateLeft:
-        _piece.Rotate(90, (0, 0, -2))
+        _piece.Rotate(90, (0, -2, 0))
         rotateLeft = False
     elif rotateRight:
-        _piece.Rotate(-90, (0, 0, -2))
+        _piece.Rotate(-90, (0, -2, 0))
         rotateRight = False
     elif rotateDown:
-        _piece.Rotate(90, (0, -2, 0))
+        _piece.Rotate(-90, (-2, 0, 0))
         rotateDown = False
 
     _piece.Update(deltaTime, move, _isGamePaused)
