@@ -144,11 +144,9 @@ def Render():
     for piece in tetrisPieces:
         #piece.Render()
         GamePlay.Render(piece)
-
+    
     #GamePlay.Render()
     
-    #UI
-
     # Setting up orthographic projection for text rendering
     glMatrixMode(GL_PROJECTION)
     glPushMatrix()
@@ -159,7 +157,7 @@ def Render():
     glLoadIdentity()
     
     # Render the text
-    render_text("Hello World", 10, 10, 48)
+    render_text("     next", 10, 10, 48)
 
     # Restore the previous projection and modelview matrices
     glPopMatrix()
@@ -167,12 +165,13 @@ def Render():
     glPopMatrix()
     glMatrixMode(GL_MODELVIEW)
 
+    # Render the cube and triangle
+    # cube.Render() 
+    # triangle.Render()
+    GamePlay.Render()
+    Border.Render()
 
-    triangle.Render()
-    #UI
-    
-    #Border.Render()
-
+    # Update the display
     pygame.display.flip()
 
 _gTickLastFrame = pygame.time.get_ticks()
