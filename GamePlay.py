@@ -9,6 +9,10 @@ import Pieces
 
 def Init():
     global _piece
+    #NEW
+    global _nextPiece
+    global nextIndex
+    #NEW
     global OnStart
     global moveUp, moveDown, moveLeft, moveRight, rotateLeft, rotateRight, rotateDown
 
@@ -38,22 +42,20 @@ def ProcessEvent(event):
     return False
 
 index = random.randint(0, 6)
+#NEW
+#Get a random index for the next piece
+nextIndex = random.randint(0, 6)
+#NEW
 
 #ALFREDO
 _isGamePaused = False  # A new global variable to track the pause state
 
 def Pause(pieces):
     global _isGamePaused
-    #NEW
-    global _piece #BUG: _piece is always Z, so only Z block fade is toggled. WHY is piece not updated globally?
-    #NEW
+    global _piece #BUG: _piece is always Z, so only Z block fade is toggled. WHY is piece not updated globally in the Update function?
 
-    #TEST
+    #BUG: Set _piece here because it isn't updating globally
     _piece = pieces[index]
-
-    print("pause")
-    print(_piece.name)
-    print(index)
 
     _isGamePaused = True
     #TODO: When this function is called, trigger all cubes on screen to disappear (on final assignment)
@@ -62,15 +64,10 @@ def Pause(pieces):
 
 def Resume(pieces):
     global _isGamePaused
-    #NEW
     global _piece
-    #NEW
 
     #TEST
     _piece = pieces[index]
-
-    print("unpause")
-    print(_piece.name)
 
     _isGamePaused = False
 #ALFREDO
@@ -82,6 +79,9 @@ def Resume(pieces):
 def Update(deltaTime, pieces):
     global _piece
     global index
+    #NEW
+    global nextIndex
+    #NEW
     global OnStart
     global moveUp, moveDown, moveLeft, moveRight, rotateLeft, rotateRight, rotateDown
 
@@ -103,12 +103,16 @@ def Update(deltaTime, pieces):
     # Check if piece hits the bottom
     move = np.asfarray([0, -2*deltaTime, 0])
     if move[1] + _piece.GetPos()[1] <= -5:
-        index = random.randint(0, 6)
+        #NEW:
+        #Update index to next index and grab a new next index
+        index = nextIndex
+        nextIndex = random.randint(0, 6)
+        #NEW
+        #index = random.randint(0, 6)
         OnStart = True
         move[1] += 24
 
-    #NEW
-    #Check if piece is close to bottom
+    #Check if piece is close to bottom. If so, toggle cubes to fade
     if move[1] + _piece.GetPos()[1] <= -4:
         #Toggle cubes of piece to fade out
         _piece.ToggleCubes(False, True)
