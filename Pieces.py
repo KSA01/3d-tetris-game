@@ -55,25 +55,25 @@ class Piece:
 
         self.name = name
         if self.name == "I":
-            localPositions = [(0, 0, 0), (0, 0, -2), (0, 0, -4), (0, 0, 2)]
+            self.localPositions = [(0, 0, 0), (0, 0, -2), (0, 0, -4), (0, 0, 2)]
         elif self.name == "J":
-            localPositions = [(0, 0, 0), (0, 2, 0), (-2, 2, 0), (0, -2, 0)]
+            self.localPositions = [(0, 0, 0), (0, 2, 0), (-2, 2, 0), (0, -2, 0)]
         elif self.name == "L":
-            localPositions = [(0, 0, 0), (0, 2, 0), (-2, -2, 0), (0, -2, 0)]
+            self.localPositions = [(0, 0, 0), (0, 2, 0), (-2, -2, 0), (0, -2, 0)]
         elif self.name == "O":
-            localPositions = [(0, 0, 0), (-2, 0, 0), (0, -2, 0), (-2, -2, 0)]
+            self.localPositions = [(0, 0, 0), (-2, 0, 0), (0, -2, 0), (-2, -2, 0)]
         elif self.name == "S":
-            localPositions = [(0, 0, 0), (0, -2, 0), (2, 0, 0), (-2, -2, 0)]
+            self.localPositions = [(0, 0, 0), (0, -2, 0), (2, 0, 0), (-2, -2, 0)]
         elif self.name == "T":
-            localPositions = [(0, 0, 0), (-2, 0, 0), (2, 0, 0), (0, -2, 0)]
+            self.localPositions = [(0, 0, 0), (-2, 0, 0), (2, 0, 0), (0, -2, 0)]
         elif self.name == "Z":
-            localPositions = [(0, 0, 0), (0, -2, 0), (-2, 0, 0), (2, -2, 0)]
+            self.localPositions = [(0, 0, 0), (0, -2, 0), (-2, 0, 0), (2, -2, 0)]
 
 
         self.filepath = filepath
 
 
-        self.cubes = [Cube(localPos, color, self.filepath) for localPos in localPositions]
+        self.cubes = [Cube(localPos, color, self.filepath) for localPos in self.localPositions]
         self.position = position        #takes position of each piece
         self.ang = 0
         self.axis = (3,1,1)             
@@ -97,12 +97,12 @@ class Piece:
 
     def SetPos(self, position):
         self.position = position
-        #for i in range(len(self.cubes)):
-        '''for cube in self.cubes:
-            #change each localPos
-            localPos = cube.GetCubePos()
-            newPosition = np.add(position, localPos)
-            cube.SetCubePos(newPosition)'''
+
+    def ResetCubePos(self):
+        for i, cube in enumerate(self.cubes):
+            #reset each localPos
+            cube.SetCubePos(self.localPositions[i])
+
         
     #Change the value of appearing and disappearing for all cubes within piece (pass in a boolean for appear and disappear)
     def ToggleCubes(self, appear, disappear):
