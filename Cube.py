@@ -166,7 +166,7 @@ class Cube:
 
     def Update(self, deltaTime, move):
         self.ang += 50.0 * deltaTime
-        self.localPos += move
+        #self.localPos += move
 
         #NEW
         #If cube is appearing, call fade in function

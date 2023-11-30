@@ -91,6 +91,7 @@ def Update(deltaTime, pieces):
     #print(_piece.name) #Prints the correct current piece
 
     if OnStart:
+        _piece.ResetCubePos()
         updatePos = (0, 6, -2)
         _piece.SetPos(updatePos)
         OnStart = False
