@@ -37,11 +37,7 @@ def ProcessEvent(event):
 
     return False
 
-prevIndex = None
 index = random.randint(0, 6)
-while index == prevIndex:
-    index = random.randint(0, 6)
-prevIndex = index
 
 #ALFREDO
 _isGamePaused = False  # A new global variable to track the pause state
