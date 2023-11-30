@@ -149,7 +149,7 @@ class Cube:
                 self.color[3] = 1
                 self.color[3] = 1
                 self.appearing = False
-                print("Fully visible")
+                #print("Fully visible")
         
 
     #Fade out a cube over 1/6 of a second
@@ -162,7 +162,7 @@ class Cube:
             if self.color[3] <= 0:
                 self.color[3] = 0
                 self.disappearing = False
-                print("Fully transparent")
+                #print("Fully transparent")
 
     def Update(self, deltaTime, move):
         self.ang += 50.0 * deltaTime
