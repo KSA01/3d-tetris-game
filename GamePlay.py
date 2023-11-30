@@ -63,7 +63,7 @@ def Pause(pieces):
 def Resume(pieces):
     global _isGamePaused
     #NEW
-    global _piece #BUG: _piece is always Z, so only Z block fade is toggled
+    global _piece
     #NEW
 
     #TEST
