@@ -4,7 +4,7 @@ from OpenGL.GL import *
 import numpy as np
 import math
 import random
-import quaternion
+#import quaternion
 
 from Cube import * #Cube, Init, axis_rotation_matrix
 #import GamePlay
