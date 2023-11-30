@@ -106,7 +106,11 @@ def Update(deltaTime, pieces):
         #NEW:
         #Update index to next index and grab a new next index
         index = nextIndex
-        nextIndex = random.randint(0, 6)
+        #Temp: Make sure same piece isn't selected twice (need better solution)
+        while nextIndex == index:
+            print(index)
+            print(nextIndex)
+            nextIndex = random.randint(0, 6)
         #NEW
         #index = random.randint(0, 6)
         OnStart = True
