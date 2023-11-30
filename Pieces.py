@@ -4,15 +4,14 @@ from OpenGL.GL import *
 import numpy as np
 import math
 import random
-import quaternion
+#import quaternion
 
 from Cube import * #Cube, Init, axis_rotation_matrix
 #import GamePlay
 
 from Texture import Texture
 
-#CHANGED
-#Added transparency (color[3])
+#[r,g,b,a]
 colors = (
         [0,1,1,1], # Cyan 0
         [0,0,1,1], # Blue 1
@@ -72,7 +71,7 @@ class Piece:
 
 
         self.filepath = filepath
-        #print(filepath)
+
 
         self.cubes = [Cube(localPos, color, self.filepath) for localPos in self.localPositions]
         self.position = position        #takes position of each piece
@@ -104,7 +103,6 @@ class Piece:
             #reset each localPos
             cube.SetCubePos(self.localPositions[i])
         
-    #NEW
     #Change the value of appearing and disappearing for all cubes within piece (pass in a boolean for appear and disappear)
     def ToggleCubes(self, appear, disappear):
         for cube in self.cubes:

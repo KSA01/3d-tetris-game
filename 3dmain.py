@@ -11,6 +11,8 @@ import Cube
 import Pieces
 import Border
 import GamePlay
+import UI
+#from GamePlay import initialize_gameplay
 
 #Need to install for UI
 from freetype import *
@@ -26,7 +28,6 @@ glMatrixMode(GL_MODELVIEW)
 glEnable(GL_DEPTH_TEST)
 glDepthFunc(GL_LESS)
 
-#NEW
 glEnable(GL_BLEND)
 glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA)
 
@@ -59,6 +60,33 @@ for piece in tetrisPieces:
 
 
 #UI
+
+def render_image(x, y, width, height, image_path):
+    """ Renders an image onto the screen with specified width and height """
+    image_surface = pygame.image.load(image_path)
+    image_surface = pygame.transform.scale(image_surface, (width, height))
+    image_data = pygame.image.tostring(image_surface, "RGBA", True)
+
+    image_texture = glGenTextures(1)
+    glBindTexture(GL_TEXTURE_2D, image_texture)
+    # Set texture parameters
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR)
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR)
+    # Create texture
+    glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, width, height, 0, GL_RGBA, GL_UNSIGNED_BYTE, image_data)
+
+    # Render the image as a texture
+    glEnable(GL_TEXTURE_2D)
+    glBindTexture(GL_TEXTURE_2D, image_texture)
+    glBegin(GL_QUADS)
+    # Map the image texture onto a quad
+    glTexCoord2f(0, 1); glVertex2f(x, y)
+    glTexCoord2f(1, 1); glVertex2f(x + width, y)
+    glTexCoord2f(1, 0); glVertex2f(x + width, y + height)
+    glTexCoord2f(0, 0); glVertex2f(x, y + height)
+    glEnd()
+    glDisable(GL_TEXTURE_2D)
+
 
 # Font settings for rendering text
 font_path = "font/Freedom-10eM.ttf"  # Replace with your font file path
@@ -94,7 +122,10 @@ def render_text(text, x, y, font_size):
 
 #UI
 
-
+def initialize_gameplay(callback):
+    # Your gameplay initialization code
+    # Pass the render_image function as a callback
+    callback(render_image)
 
 
 
@@ -170,9 +201,12 @@ def Render():
     glMatrixMode(GL_MODELVIEW)
     glPushMatrix()
     glLoadIdentity()
-    
+
+    image_path = "Icons/IIcon.png"
+    render_image(75, 50, 50, 200, image_path)
+
     # Render the text
-    render_text("Hello World", 10, 10, 48)
+    render_text("  next", 10, 10, 48)
 
     # Restore the previous projection and modelview matrices
     glPopMatrix()
@@ -181,7 +215,7 @@ def Render():
     glMatrixMode(GL_MODELVIEW)
 
 
-    triangle.Render()
+    #triangle.Render()
     #UI
     
     #Border.Render()
@@ -195,3 +229,6 @@ while Update(_gDeltaTime):
     t = pygame.time.get_ticks()
     _gDeltaTime = (t - _gTickLastFrame) / 1000.0
     _gTickLastFrame = t
+
+if __name__ == "__main__":
+    initialize_gameplay()
