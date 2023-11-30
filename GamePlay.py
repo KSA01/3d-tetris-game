@@ -7,6 +7,16 @@ import math
 import random
 import Pieces
 
+icons = (
+    "Icons/IIcon.png",
+    "Icons/JIcon.png",
+    "Icons/LIcon.png",
+    "Icons/OIcon.png",
+    "Icons/SIcon.png",
+    "Icons/TIcon.png",
+    "Icons/ZIcon.png"
+)
+
 def Init():
     global _piece
     #NEW
@@ -88,6 +98,7 @@ def Update(deltaTime, pieces):
     _piece = pieces[index]
 
     if OnStart:
+        _piece.ResetCubePos()
         updatePos = (0, 6, -2)
         _piece.SetPos(updatePos)
         OnStart = False
@@ -100,12 +111,11 @@ def Update(deltaTime, pieces):
     # Check if piece hits the bottom
     move = np.asfarray([0, -2*deltaTime, 0])
     if move[1] + _piece.GetPos()[1] <= -5:
-        #NEW:
+
         #Update index to next index and grab a new next index
         index = nextIndex
         nextIndex = random.randint(0, 6)
-        #NEW
-        #index = random.randint(0, 6)
+
         OnStart = True
         move[1] += 24
 
