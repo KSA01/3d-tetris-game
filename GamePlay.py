@@ -6,7 +6,6 @@ import numpy as np
 import math
 import random
 import Pieces
-import UI
 
 icons = (
     "Icons/IIcon.png",
@@ -116,10 +115,7 @@ def Update(deltaTime, pieces):
         #Update index to next index and grab a new next index
         index = nextIndex
         nextIndex = random.randint(0, 6)
-        # Redner next image icon
-        #UI.render_image(75, 50, 50, 200, icons[nextIndex])
-        #NEW
-        #index = random.randint(0, 6)
+
         OnStart = True
         move[1] += 24
 
@@ -143,7 +139,7 @@ def Update(deltaTime, pieces):
         if moveLeft:
             move[0] += -2
             moveLeft = False
-    if _piece.GetPos()[0] <= 1.5:
+    if _piece.GetPos()[0] <= 3:
         if moveRight:
             move[0] += 2
             moveRight = False
@@ -165,6 +161,6 @@ def Update(deltaTime, pieces):
 def Render(piece):
     global _piece
 
-    #_piece = piece
+    #_piece = piece #Commented out, this line was causing _piece to be set to Z every frame
 
     _piece.Render()
