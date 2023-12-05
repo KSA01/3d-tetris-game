@@ -7,6 +7,11 @@ import math
 import random
 import Pieces
 
+#Camera
+import Border
+import Camera
+#Camera
+
 icons = (
     "Icons/IIcon.png",
     "Icons/JIcon.png",
@@ -26,12 +31,22 @@ def Init():
     global OnStart
     global moveUp, moveDown, moveLeft, moveRight, rotateLeft, rotateRight, rotateDown
 
+    #Camera
+    global camUp, camDown, camLeft, camRight
+    camUp, camDown, camLeft, camRight = False, False, False, False
+    #Camera
+
     Pieces.Init()
     OnStart = True
     moveUp, moveDown, moveLeft, moveRight, rotateLeft, rotateRight, rotateDown = False, False, False, False, False, False, False
 
 def ProcessEvent(event):
     global moveUp, moveDown, moveLeft, moveRight, rotateLeft, rotateRight, rotateDown
+    
+    #Camera
+    global camUp, camDown, camLeft, camRight
+    #Camera
+    
     #add player key shift movements using arrow keys
     if event.type == pygame.KEYDOWN:
         if event.key == pygame.K_LEFT:
@@ -48,6 +63,17 @@ def ProcessEvent(event):
             rotateRight = True
         elif event.key == pygame.K_s:
             rotateDown = True
+
+    #Camera
+        if event.key == pygame.K_i:
+            camUp = True
+        elif event.key == pygame.K_k:
+            camDown = True
+        elif event.key == pygame.K_j:
+            camLeft = True
+        elif event.key == pygame.K_l:
+            camRight = True
+    #Camera
 
     return False
 
@@ -89,11 +115,15 @@ def Resume(pieces):
 def Update(deltaTime, pieces):
     global _piece
     global index
-    #NEW
+    
     global nextIndex
-    #NEW
+    
     global OnStart
     global moveUp, moveDown, moveLeft, moveRight, rotateLeft, rotateRight, rotateDown
+
+    #Camera
+    global camUp, camDown, camLeft, camRight
+    #Camera
 
     _piece = pieces[index]
 
@@ -103,7 +133,6 @@ def Update(deltaTime, pieces):
         _piece.SetPos(updatePos)
         OnStart = False
 
-        #NEW
         #Toggle cubes of piece to fade in
         _piece.ToggleCubes(True, False)
 
@@ -156,6 +185,30 @@ def Update(deltaTime, pieces):
         rotateDown = False
 
     _piece.Update(deltaTime, move, _isGamePaused)
+
+    #Camera
+    if camUp:
+        print("Cam up")
+        Camera.toggleCamMove(0, 1)
+        #Border.rotateCamera(0)
+        camUp = False
+    elif camDown:
+        print("Cam down")
+        Camera.toggleCamMove(0, -1)
+        #Border.rotateCamera(1)
+        camDown = False
+    elif camLeft:
+        print("Cam left")
+        Camera.toggleCamMove(1, 0)
+        #Border.rotateCamera(2)
+        camLeft = False
+    elif camRight:
+        print("Cam right")
+        Camera.toggleCamMove(-1, 0)
+        #Border.rotateCamera(3)
+        camRight = False
+
+    #Camera
 
 #Probably shouldn't pass in anything here
 def Render(piece):

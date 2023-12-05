@@ -29,3 +29,19 @@ def Render():
     glEnd()
 
     glLoadMatrixf(m)
+
+
+#TODO: Camera works, but relative position must be set for camera and movement
+#Rotates the camera 90 degrees in a direction (dir: 0 = up, 1 = down, 2 = left, 3 = right)
+def rotateCamera(dir):
+    if dir == 0:
+        glRotate(30, 1, 0, 0)
+    elif dir == 1:
+        glRotate(-30, 1, 0, 0)
+    elif dir == 2:
+        glRotate(90, 0, 1, 0)
+    elif dir == 3:
+        glRotate(-90, 0, 1, 0)
+
+
+    pass
