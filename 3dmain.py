@@ -13,6 +13,10 @@ import Border
 import GamePlay
 import UI
 
+#Camera
+import Camera
+#Camera
+
 #Need to install for UI
 from freetype import *
 import pygame.freetype
@@ -31,8 +35,8 @@ glEnable(GL_BLEND)
 glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA)
 
 glTranslate(1.0, 0.0, -25.0)     #translates the camera
-glRotate(-15, 0, 1, 0)           #rotate -15 degrees around y
-glRotate(30, 1, 0, 0)            #rotate 30 degrees around x
+#glRotate(-15, 0, 1, 0)           #rotate -15 degrees around y
+#glRotate(30, 1, 0, 0)            #rotate 30 degrees around x
 
 Cube.Init()
 #cube = Cube.Cube()
@@ -56,6 +60,9 @@ for piece in tetrisPieces:
 
 #print("NUMBER OF CUBES: " + str(tetrisCubes))
 
+#Camera
+Camera.Init()
+#Camera
 
 def Update(deltaTime):
     #ALFREDO
@@ -95,6 +102,10 @@ def Update(deltaTime):
     
     GamePlay.Update(deltaTime, tetrisPieces)
     
+    #Camera
+    Camera.Update(deltaTime)
+    #Camera
+
 
     #UI
     triangle.Update(deltaTime)
@@ -112,7 +123,7 @@ def Render():
     #cube.Render()
     for piece in tetrisPieces:
         #piece.Render()
-        GamePlay.Render(piece)
+        GamePlay.Render()
 
     #GamePlay.Render()
     
