@@ -9,10 +9,12 @@ def Init():
     camPosV = 0
 
     #NEW
-    #The axis NOT currently intersecting the camera (can be 0 (x) or 1 (z))
-    #This axis is rotated around when moving camera up/down
-    global curAxisV
-    curAxisV = 0
+    #A list containing the four horizontal views, each named after the axis facing the camera
+    global sides
+    sides = ['z', 'x', '-z', '-x']
+    #Tracks the current side being viewed from (used for proper vertical rotations)
+    global curSide
+    curSide = 0
 
     #Which direction the camera is currently rotating (-1 = right/down, 0 = not rotating, 1 = left/up)
     global camDirH
@@ -29,25 +31,30 @@ def Init():
 
 
 
-#Toggles the camera to move in a given X and Y direction (pass in -1, 0, or 1)
+#Toggles the camera to move in a given H or V direction (pass in -1, 0, or 1)
 def toggleCamMove(dirH, dirV):
     global camPosV
     global camDirH
     global camDirV
-    global curAxisV
+    global sides
+    global curSide
 
     #If the camera is not currently rotating, toggle it to rotate in a given direction (horizontal movement takes priority)
     if camDirH == 0 and camDirV == 0:
         #Horizontal movement
         if dirH != 0:
             camDirH = dirH
-            #Update vertical rotation axis tracker (since rotating horizontally changes the axis parallel with camera)
-            if curAxisV == 0:
-                curAxisV = 1
-                print("current axis: z")
+            #Update current side (since rotating horizontally changes the axis parallel with camera)
+            if curSide + camDirH < 0:
+                curSide = 3
+            elif curSide + camDirH > 3:
+                curSide = 0
             else:
-                curAxisV = 0
-                print("current axis: x")
+                curSide += camDirH
+            
+            print("Current axis pointing to camera:")
+            print(sides[curSide])
+
         #Vertical movement
         elif dirV != 0:
             #Ensure that the camera does not move 60 degrees above or below 0 (eye-level)
@@ -68,103 +75,77 @@ def rotateCamera(dir, deltaTime):
     global degRotatedV
     global camDirH
     global camDirV
-
-    #TEST
-    global curAxisV
+    global sides
+    global curSide
 
     #The magnitude of rotation (based on deltaTime and desired direction)
     mag = 0
 
-    #Vertical Rotation
+    #Calculate the magnitude of rotation based on direction (90 or 30 degrees over 1/6s for horizontal/vertical)
+    
+    #Vertical rotation
+    if dir == 0 or dir == 1:
+        mag = deltaTime * 6 * 30
 
-    #Rotate up
+        #Check if the camera is about to rotate past 30 degrees total for this rotation
+        if degRotatedV + mag > 30:
+            #Only rotate the remaining degrees for this rotation
+            mag = 30 - degRotatedV
+            #Reset degrees rotated tracker
+            degRotatedV = 0
+            #Reset vertical camera movement to 0 (not moving)
+            camDirV = 0
+        else:
+            #Update the degrees rotated tracker
+            degRotatedV += abs(mag)
+
+    #Horizontal rotation
+    elif dir == 2 or dir == 3:
+        mag = deltaTime * 6 * 90
+
+        #Check if the camera is about to rotate past 90 degrees total for this rotation
+        if degRotatedH + mag > 90:
+            #Only rotate the remaining degrees for this rotation
+            mag = 90 - degRotatedH
+            #Reset degrees rotated tracker
+            degRotatedH = 0
+            #Reset vertical camera movement to 0 (not moving)
+            camDirH = 0
+        else:
+            #Update the degrees rotated tracker
+            degRotatedH += abs(mag)
+
+
+    #Perform the rotation
+
+    #UP
     if dir == 0:
-        mag = deltaTime * 6 * 30
-
-        #Check if the camera is about to rotate past 30 degrees total for this rotation
-        if degRotatedV + mag > 30:
-            #Only rotate the remaining degrees for this rotation
-            mag = 30 - degRotatedV
-            #Reset degrees rotated tracker
-            degRotatedV = 0
-            #Reset vertical camera movement to 0 (not moving)
-            camDirV = 0
-        else:
-            #Update the degrees rotated tracker
-            degRotatedV += abs(mag)
-
-        #If the x axis isn't parallel to the camera direction, perform the vertical rotation around x axis
-        if curAxisV == 0:
+        if sides[curSide] == 'z':
             glRotate(mag, 1, 0, 0)
-        #Otherwise, perform the vertical rotation around Z axis
-        else:
+        if sides[curSide] == 'x':
             glRotate(mag, 0, 0, 1)
-
-
-    #Rotate down
-    elif dir == 1:
-        mag = deltaTime * 6 * 30
-
-        #Check if the camera is about to rotate past 30 degrees total for this rotation
-        if degRotatedV + mag > 30:
-            #Only rotate the remaining degrees for this rotation
-            mag = 30 - degRotatedV
-            #Reset degrees rotated tracker
-            degRotatedV = 0
-            #Reset vertical camera movement to 0 (not moving)
-            camDirV = 0
-        else:
-            #Update the degrees rotated tracker
-            degRotatedV += abs(mag)
-
-        #If the x axis isn't parallel to the camera direction, perform the vertical rotation around x axis
-        if curAxisV == 0:
+        if sides[curSide] == '-z':
             glRotate(-mag, 1, 0, 0)
-        #Otherwise, perform the vertical rotation around Z axis
-        else:
+        if sides[curSide] == '-x':
             glRotate(-mag, 0, 0, 1)
 
+    #DOWN
+    elif dir == 1:
+        if sides[curSide] == 'z':
+            glRotate(-mag, 1, 0, 0)
+        if sides[curSide] == 'x':
+            glRotate(-mag, 0, 0, 1)
+        if sides[curSide] == '-z':
+            glRotate(mag, 1, 0, 0)
+        if sides[curSide] == '-x':
+            glRotate(mag, 0, 0, 1)
 
-    #Horizontal Rotation
-
-    #Rotate left
+    #LEFT
     elif dir == 2:
-
-        mag = deltaTime * 6 * 90
-
-        #Check if the camera is about to rotate past 90 degrees total for this rotation
-        if degRotatedH + mag > 90:
-            #Only rotate the remaining degrees for this rotation
-            mag = 90 - degRotatedH
-            #Reset degrees rotated tracker
-            degRotatedH = 0
-            #Reset vertical camera movement to 0 (not moving)
-            camDirH = 0
-        else:
-            #Update the degrees rotated tracker
-            degRotatedH += abs(mag)
-
-        #Perform the horizontal rotation around Y axis
         glRotate(mag, 0, 1, 0)
 
-
-    #Rotate right
+    #RIGHT
     elif dir == 3:
-        mag = deltaTime * 6 * 90
-
-        #Check if the camera is about to rotate past 90 degrees total for this rotation
-        if degRotatedH + mag > 90:
-            #Only rotate the remaining degrees for this rotation
-            mag = 90 - degRotatedH
-            #Reset degrees rotated tracker
-            degRotatedH = 0
-            #Reset vertical camera movement to 0 (not moving)
-            camDirH = 0
-        else:
-            #Update the degrees rotated tracker
-            degRotatedH += abs(mag)
-
-        #Perform the horizontal rotation around Y axis
         glRotate(-mag, 0, 1, 0)
 
 
@@ -172,11 +153,12 @@ def rotateCamera(dir, deltaTime):
 
 
 def Update(deltaTime):
-    global camPosV
     global degRotatedH
     global degRotatedV
     global camDirH
     global camDirV
+    global sides
+    global curSide
 
     #Call rotateCamera if camera is toggled to rotate
 
