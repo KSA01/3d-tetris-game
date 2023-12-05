@@ -2,10 +2,12 @@
 
 import pygame
 from OpenGL.GL import *
+from OpenGL.GLU import *
 import numpy as np
 import math
 import random
 import Pieces
+import UI
 
 icons = (
     "Icons/IIcon.png",
@@ -57,6 +59,8 @@ index = random.randint(0, 6)
 nextIndex = random.randint(0, 6)
 #NEW
 
+#Set the next piece display
+icon_idx = nextIndex
 
 _isGamePaused = False  # A new global variable to track the pause state
 
@@ -91,6 +95,7 @@ def Update(deltaTime, pieces):
     global index
     #NEW
     global nextIndex
+    global icon_idx
     #NEW
     global OnStart
     global moveUp, moveDown, moveLeft, moveRight, rotateLeft, rotateRight, rotateDown
@@ -109,12 +114,15 @@ def Update(deltaTime, pieces):
 
 
     # Check if piece hits the bottom
-    move = np.asfarray([0, -2*deltaTime, 0])
+    move = np.asfarray([0, -8*deltaTime, 0])
     if move[1] + _piece.GetPos()[1] <= -5:
 
         #Update index to next index and grab a new next index
         index = nextIndex
         nextIndex = random.randint(0, 6)
+
+        #Set the next piece display
+        icon_idx = nextIndex
 
         OnStart = True
         move[1] += 24
@@ -160,6 +168,31 @@ def Update(deltaTime, pieces):
 #Probably shouldn't pass in anything here
 def Render(piece):
     global _piece
+    global icon_idx
+
+    # screen size
+    width, height = 640, 750
+
+    # Setting up orthographic projection for text rendering
+    glMatrixMode(GL_PROJECTION)
+    glPushMatrix()
+    glLoadIdentity()
+    gluOrtho2D(0, width, height, 0)
+    glMatrixMode(GL_MODELVIEW)
+    glPushMatrix()
+    glLoadIdentity()
+    
+    #Render the image
+    UI.render_image(70, 50, 70, 100, image_path=icons[0])
+
+    # Render the text
+    UI.render_text("next", 50, 10, 48)
+
+    # Restore the previous projection and modelview matrices
+    glPopMatrix()
+    glMatrixMode(GL_PROJECTION)
+    glPopMatrix()
+    glMatrixMode(GL_MODELVIEW)
 
     #_piece = piece #Commented out, this line was causing _piece to be set to Z every frame
 
