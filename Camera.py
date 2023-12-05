@@ -50,6 +50,12 @@ def rotateCamera(dir, deltaTime):
     global camDirH
     global camDirV
 
+
+    #TEST
+    #Translate camera to center before rotating
+    #glTranslate(-1.0, 0.0, 30.0) #Creates a first person camera effect (not what I want)
+    #Need case by case basis?
+
     #The magnitude of rotation (based on deltaTime and desired direction)
     mag = 0
 
@@ -135,6 +141,12 @@ def rotateCamera(dir, deltaTime):
 
         #Perform the horizontal rotation around Y axis
         glRotate(-mag, 0, 1, 0)
+
+
+
+    #TEST
+    #Translate camera back out after rotating
+    #glTranslate(1.0, 0.0, -30.0)
 
 
 

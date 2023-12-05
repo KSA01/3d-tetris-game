@@ -1,3 +1,5 @@
+#QUESTION: Is it possible to reset the camera base position?
+
 # 3dmain.py
 
 import numpy as np
