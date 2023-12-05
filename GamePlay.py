@@ -114,7 +114,7 @@ def Update(deltaTime, pieces):
 
 
     # Check if piece hits the bottom
-    move = np.asfarray([0, -8*deltaTime, 0])
+    move = np.asfarray([0, -2*deltaTime, 0])
     if move[1] + _piece.GetPos()[1] <= -5:
 
         #Update index to next index and grab a new next index
@@ -183,7 +183,7 @@ def Render(piece):
     glLoadIdentity()
     
     #Render the image
-    UI.render_image(70, 50, 70, 100, image_path=icons[0])
+    UI.render_image(70, 50, 100, 100, image_path=icons[icon_idx])
 
     # Render the text
     UI.render_text("next", 50, 10, 48)

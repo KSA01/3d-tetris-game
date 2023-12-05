@@ -42,6 +42,8 @@ def render_text(text, x, y, font_size):
 
 def render_image(x, y, width, height, image_path):
     """ Renders an image onto the screen with specified width and height """
+    if image_path == "Icons/IIcon.png":
+        width /= 2
     image_surface = pygame.image.load(image_path)
     image_surface = pygame.transform.scale(image_surface, (width, height))
     image_data = pygame.image.tostring(image_surface, "RGBA", True)
