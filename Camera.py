@@ -1,7 +1,6 @@
 from OpenGL.GL import *
 import numpy as np
 
-#glRotate guide: (-y right, +y left, +x up, -x down)
 
 def Init():
     #The vertical angle of the camera (ranges from 2 to -2, in increments of 30 degrees. >0 looking down, 0 eye-level, <0 looking up)
@@ -52,8 +51,8 @@ def toggleCamMove(dirH, dirV):
             else:
                 curSide += camDirH
             
-            print("Current axis pointing to camera:")
-            print(sides[curSide])
+            #print("Current axis pointing to camera:")
+            #print(sides[curSide])
 
         #Vertical movement
         elif dirV != 0:
@@ -149,7 +148,11 @@ def rotateCamera(dir, deltaTime):
         glRotate(-mag, 0, 1, 0)
 
 
-
+#Return the axis currently pointing towards the camera
+def getCurSide():
+    global sides
+    global curSide
+    return sides[curSide]
 
 
 def Update(deltaTime):

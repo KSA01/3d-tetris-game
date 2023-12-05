@@ -153,25 +153,85 @@ def Update(deltaTime, pieces):
         #Toggle cubes of piece to fade out
         _piece.ToggleCubes(False, True)
 
+    #Camera Update
+    #BUG: Need proper out of bounds checks, movement doesn't always work after camera turns
+
+    #Get the axis currently facing camera
+    if moveUp or moveDown or moveLeft or moveRight:
+        curSide = Camera.getCurSide()
+        print(curSide)
+
     # Check if piece is not at z limit then move
     if _piece.GetPos()[2] >= -4:
         if moveUp:
-            move[2] += -2
+            if curSide == 'z':
+                move[2] += -2
+            elif curSide == 'x':
+                move[0] += 2
+            elif curSide == '-z':
+                move[2] += 2
+            elif curSide == '-x':
+                move[0] += -2
             moveUp = False
     if _piece.GetPos()[2] <= 1.5:
         if moveDown:
-            move[2] += 2
+            if curSide == 'z':
+                move[2] += 2
+            elif curSide == 'x':
+                move[0] += -2
+            elif curSide == '-z':
+                move[2] += -2
+            elif curSide == '-x':
+                move[0] += 2
             moveDown = False
 
     # Check if piece is not at x limit then move
     if _piece.GetPos()[0] >= -3:
         if moveLeft:
-            move[0] += -2
+            if curSide == 'z':
+                move[0] += -2
+            elif curSide == 'x':
+                move[2] += -2
+            elif curSide == '-z':
+                move[0] += 2
+            elif curSide == '-x':
+                move[2] += 2
             moveLeft = False
     if _piece.GetPos()[0] <= 3:
         if moveRight:
-            move[0] += 2
-            moveRight = False
+            if curSide == 'z':
+                move[0] += 2
+            elif curSide == 'x':
+                move[2] += 2
+            elif curSide == '-z':
+                move[0] += -2
+            elif curSide == '-x':
+                move[2] += -2
+            moveRight = False   
+
+
+    # Check if piece is not at z limit then move
+    #if _piece.GetPos()[2] >= -4:
+    #    if moveUp:
+    #        move[2] += -2
+    #        moveUp = False
+    #if _piece.GetPos()[2] <= 1.5:
+    #    if moveDown:
+    #        move[2] += 2
+    #        moveDown = False
+
+    # Check if piece is not at x limit then move
+    #if _piece.GetPos()[0] >= -3:
+    #    if moveLeft:
+    #        move[0] += -2
+    #        moveLeft = False
+    #if _piece.GetPos()[0] <= 3:
+    #    if moveRight:
+    #        move[0] += 2
+    #        moveRight = False
+
+    #Camera Update
+
 
     # Rotate piece
     if rotateLeft:
@@ -188,22 +248,22 @@ def Update(deltaTime, pieces):
 
     #Camera
     if camUp:
-        print("Cam up")
+        #print("Cam up")
         Camera.toggleCamMove(0, 1)
         #Border.rotateCamera(0)
         camUp = False
     elif camDown:
-        print("Cam down")
+        #print("Cam down")
         Camera.toggleCamMove(0, -1)
         #Border.rotateCamera(1)
         camDown = False
     elif camLeft:
-        print("Cam left")
+        #print("Cam left")
         Camera.toggleCamMove(1, 0)
         #Border.rotateCamera(2)
         camLeft = False
     elif camRight:
-        print("Cam right")
+        #print("Cam right")
         Camera.toggleCamMove(-1, 0)
         #Border.rotateCamera(3)
         camRight = False
