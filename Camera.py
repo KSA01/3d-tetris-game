@@ -8,6 +8,12 @@ def Init():
     global camPosV
     camPosV = 0
 
+    #NEW
+    #The axis NOT currently intersecting the camera (can be 0 (x) or 1 (z))
+    #This axis is rotated around when moving camera up/down
+    global curAxisV
+    curAxisV = 0
+
     #Which direction the camera is currently rotating (-1 = right/down, 0 = not rotating, 1 = left/up)
     global camDirH
     global camDirV
@@ -22,24 +28,37 @@ def Init():
 
 
 
+
 #Toggles the camera to move in a given X and Y direction (pass in -1, 0, or 1)
 def toggleCamMove(dirH, dirV):
     global camPosV
     global camDirH
     global camDirV
+    global curAxisV
 
-    #If camera not currently rotating horizontally/vertically, toggle it to move in specified direction
-    if camDirH == 0:
-        camDirH = dirH
-    if camDirV == 0:
-        #Ensure that the camera does not move 60 degrees above or below 0 (eye-level)
-        if camPosV + dirV <= 2 and camPosV + dirV >= -2:
-            camDirV = dirV
-            #Increment vertical camera position
-            camPosV += dirV
+    #If the camera is not currently rotating, toggle it to rotate in a given direction (horizontal movement takes priority)
+    if camDirH == 0 and camDirV == 0:
+        #Horizontal movement
+        if dirH != 0:
+            camDirH = dirH
+            #Update vertical rotation axis tracker (since rotating horizontally changes the axis parallel with camera)
+            if curAxisV == 0:
+                curAxisV = 1
+                print("current axis: z")
+            else:
+                curAxisV = 0
+                print("current axis: x")
+        #Vertical movement
+        elif dirV != 0:
+            #Ensure that the camera does not move 60 degrees above or below 0 (eye-level)
+            if camPosV + dirV <= 2 and camPosV + dirV >= -2:
+                camDirV = dirV
+                #Increment vertical camera position
+                camPosV += dirV
 
-            #TEST
-            print(camPosV)
+                #TEST
+                print(camPosV)
+
 
 
 
@@ -50,11 +69,8 @@ def rotateCamera(dir, deltaTime):
     global camDirH
     global camDirV
 
-
     #TEST
-    #Translate camera to center before rotating
-    #glTranslate(-1.0, 0.0, 30.0) #Creates a first person camera effect (not what I want)
-    #Need case by case basis?
+    global curAxisV
 
     #The magnitude of rotation (based on deltaTime and desired direction)
     mag = 0
@@ -77,8 +93,13 @@ def rotateCamera(dir, deltaTime):
             #Update the degrees rotated tracker
             degRotatedV += abs(mag)
 
-        #Perform the vertical rotation around X axis
-        glRotate(mag, 1, 0, 0)
+        #If the x axis isn't parallel to the camera direction, perform the vertical rotation around x axis
+        if curAxisV == 0:
+            glRotate(mag, 1, 0, 0)
+        #Otherwise, perform the vertical rotation around Z axis
+        else:
+            glRotate(mag, 0, 0, 1)
+
 
     #Rotate down
     elif dir == 1:
@@ -96,8 +117,12 @@ def rotateCamera(dir, deltaTime):
             #Update the degrees rotated tracker
             degRotatedV += abs(mag)
 
-        #Perform the vertical rotation around X axis
-        glRotate(-mag, 1, 0, 0)
+        #If the x axis isn't parallel to the camera direction, perform the vertical rotation around x axis
+        if curAxisV == 0:
+            glRotate(-mag, 1, 0, 0)
+        #Otherwise, perform the vertical rotation around Z axis
+        else:
+            glRotate(-mag, 0, 0, 1)
 
 
     #Horizontal Rotation
@@ -143,10 +168,6 @@ def rotateCamera(dir, deltaTime):
         glRotate(-mag, 0, 1, 0)
 
 
-
-    #TEST
-    #Translate camera back out after rotating
-    #glTranslate(1.0, 0.0, -30.0)
 
 
 

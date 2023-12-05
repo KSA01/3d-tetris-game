@@ -1,0 +1,29 @@
+#Toggles the camera to move in a given X and Y direction (pass in -1, 0, or 1)
+def toggleCamMove(dirH, dirV):
+    global camPosV
+    global camDirH
+    global camDirV
+    global curAxisV
+
+    #If camera not currently rotating horizontally/vertically, toggle it to move in specified direction
+    #Horizontal movement
+    if camDirH == 0 and camDirV == 0 and dirH != 0:
+        camDirH = dirH
+        #Update vertical rotation axis tracker
+        if curAxisV == 0:
+            curAxisV = 1
+            print("current axis: z")
+        else:
+            curAxisV = 0
+            print("current axis: x")
+
+    #Vertical movement
+    elif camDirV == 0 and dirV != 0:
+        #Ensure that the camera does not move 60 degrees above or below 0 (eye-level)
+        if camPosV + dirV <= 2 and camPosV + dirV >= -2:
+            camDirV = dirV
+            #Increment vertical camera position
+            camPosV += dirV
+
+            #TEST
+            print(camPosV)
