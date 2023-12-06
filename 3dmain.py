@@ -12,7 +12,6 @@ import Pieces
 import Border
 import GamePlay
 import UI
-#from GamePlay import initialize_gameplay
 
 #Need to install for UI
 from freetype import *
@@ -31,7 +30,7 @@ glDepthFunc(GL_LESS)
 glEnable(GL_BLEND)
 glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA)
 
-glTranslate(1.0, 0.0, -30.0)     #translates the camera
+glTranslate(1.0, 0.0, -26.0)     #translates the camera
 glRotate(-15, 0, 1, 0)           #rotate -15 degrees around y
 glRotate(30, 1, 0, 0)            #rotate 30 degrees around x
 
@@ -58,80 +57,6 @@ for piece in tetrisPieces:
 #print("NUMBER OF CUBES: " + str(tetrisCubes))
 
 
-
-#UI
-
-def render_image(x, y, width, height, image_path):
-    """ Renders an image onto the screen with specified width and height """
-    image_surface = pygame.image.load(image_path)
-    image_surface = pygame.transform.scale(image_surface, (width, height))
-    image_data = pygame.image.tostring(image_surface, "RGBA", True)
-
-    image_texture = glGenTextures(1)
-    glBindTexture(GL_TEXTURE_2D, image_texture)
-    # Set texture parameters
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR)
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR)
-    # Create texture
-    glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, width, height, 0, GL_RGBA, GL_UNSIGNED_BYTE, image_data)
-
-    # Render the image as a texture
-    glEnable(GL_TEXTURE_2D)
-    glBindTexture(GL_TEXTURE_2D, image_texture)
-    glBegin(GL_QUADS)
-    # Map the image texture onto a quad
-    glTexCoord2f(0, 1); glVertex2f(x, y)
-    glTexCoord2f(1, 1); glVertex2f(x + width, y)
-    glTexCoord2f(1, 0); glVertex2f(x + width, y + height)
-    glTexCoord2f(0, 0); glVertex2f(x, y + height)
-    glEnd()
-    glDisable(GL_TEXTURE_2D)
-
-
-# Font settings for rendering text
-font_path = "font/Freedom-10eM.ttf"  # Replace with your font file path
-
-def render_text(text, x, y, font_size):
-    """ Renders text onto the screen """
-    font = pygame.freetype.Font(font_path, font_size)
-    text_surface, _ = font.render(text, (255, 255, 255))
-    text_data = pygame.image.tostring(text_surface, "RGBA", True)
-
-    text_texture = glGenTextures(1)
-    glBindTexture(GL_TEXTURE_2D, text_texture)
-    # Set texture parameters
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR)
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR)
-    # Create texture
-    glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, text_surface.get_width(), text_surface.get_height(), 0, GL_RGBA, GL_UNSIGNED_BYTE, text_data)
-
-    # Render the text as a texture
-    glEnable(GL_TEXTURE_2D)
-    glBindTexture(GL_TEXTURE_2D, text_texture)
-    glBegin(GL_QUADS)
-    # Map the text texture onto a quad
-    glTexCoord2f(0, 1); glVertex2f(x, y)
-    glTexCoord2f(1, 1); glVertex2f(x + text_surface.get_width(), y)
-    glTexCoord2f(1, 0); glVertex2f(x + text_surface.get_width(), y + text_surface.get_height())
-    glTexCoord2f(0, 0); glVertex2f(x, y + text_surface.get_height())
-    glEnd()
-    glDisable(GL_TEXTURE_2D)
-
-    # Clean up the texture
-    #glDeleteTextures(text_texture)
-
-#UI
-
-def initialize_gameplay(callback):
-    # Your gameplay initialization code
-    # Pass the render_image function as a callback
-    callback(render_image)
-
-
-
-
-
-
 def Update(deltaTime):
     #ALFREDO
     global _isPaused #Access the global pause variable
@@ -154,19 +79,11 @@ def Update(deltaTime):
 
         if GamePlay.ProcessEvent(event):
             continue
-
-    #GamePlay.Update(deltaTime)
-
-    #cube.Update(deltaTime)
-    #for piece in tetrisPieces:
-        #piece.Update(deltaTime)
     
     #BOOKMARK: This is where game loop checks for pause
     #ALFREDO
     #if not _isPaused: # Only update game state if not paused
     #ALFREDO
-        #GamePlay.Update(deltaTime, tetrisPieces)
-
     
     GamePlay.Update(deltaTime, tetrisPieces)
     
@@ -184,41 +101,12 @@ def Render():
     #Render Border first so transparency works correctly
     Border.Render()
 
-    #cube.Render()
-    for piece in tetrisPieces:
-        #piece.Render()
-        GamePlay.Render(piece)
-
-    #GamePlay.Render()
+    GamePlay.Render()
     
-    #UI
-
-    # Setting up orthographic projection for text rendering
-    glMatrixMode(GL_PROJECTION)
-    glPushMatrix()
-    glLoadIdentity()
-    gluOrtho2D(0, width, height, 0)
-    glMatrixMode(GL_MODELVIEW)
-    glPushMatrix()
-    glLoadIdentity()
-
-    image_path = "Icons/IIcon.png"
-    render_image(75, 50, 50, 200, image_path)
-
-    # Render the text
-    render_text("  next", 10, 10, 48)
-
-    # Restore the previous projection and modelview matrices
-    glPopMatrix()
-    glMatrixMode(GL_PROJECTION)
-    glPopMatrix()
-    glMatrixMode(GL_MODELVIEW)
-
-
+    #UI TEST
     #triangle.Render()
     #UI
     
-    #Border.Render()
 
     pygame.display.flip()
 
@@ -229,6 +117,3 @@ while Update(_gDeltaTime):
     t = pygame.time.get_ticks()
     _gDeltaTime = (t - _gTickLastFrame) / 1000.0
     _gTickLastFrame = t
-
-if __name__ == "__main__":
-    initialize_gameplay()

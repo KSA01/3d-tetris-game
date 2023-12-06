@@ -2,6 +2,7 @@
 
 import pygame
 from OpenGL.GL import *
+from OpenGL.GLU import *
 import numpy as np
 import math
 import random
@@ -27,7 +28,7 @@ def Init():
     global OnStart
     global moveUp, moveDown, moveLeft, moveRight, rotateLeft, rotateRight, rotateDown
 
-    Pieces.Init()
+    Pieces.Init() # Calls to run Pieces Init()
     OnStart = True
     moveUp, moveDown, moveLeft, moveRight, rotateLeft, rotateRight, rotateDown = False, False, False, False, False, False, False
 
@@ -58,15 +59,17 @@ index = random.randint(0, 6)
 nextIndex = random.randint(0, 6)
 #NEW
 
-#ALFREDO
+#Set the next piece display
+icon_idx = nextIndex
+
 _isGamePaused = False  # A new global variable to track the pause state
 
 def Pause(pieces):
     global _isGamePaused
-    global _piece #BUG: _piece is always Z, so only Z block fade is toggled. WHY is piece not updated globally in the Update function?
+    global _piece
 
-    #BUG: Set _piece here because it isn't updating globally
-    _piece = pieces[index]
+    #Bandaid solution, commented out
+    #_piece = pieces[index]
 
     _isGamePaused = True
     #TODO: When this function is called, trigger all cubes on screen to disappear (on final assignment)
@@ -77,33 +80,30 @@ def Resume(pieces):
     global _isGamePaused
     global _piece
 
-    #TEST
-    _piece = pieces[index]
+    #Bandaid solution, commented out
+    #_piece = pieces[index]
 
     _isGamePaused = False
-#ALFREDO
+
     #TODO: When this function is called, trigger all cubes on screen to appear (on final assignment)
     #Toggle current piece to appear
     _piece.ToggleCubes(True, False)
-
 
 def Update(deltaTime, pieces):
     global _piece
     global index
     #NEW
     global nextIndex
+    global icon_idx
     #NEW
     global OnStart
     global moveUp, moveDown, moveLeft, moveRight, rotateLeft, rotateRight, rotateDown
 
     _piece = pieces[index]
 
-    #TEST
-    #print(_piece.name) #Prints the correct current piece
-
     if OnStart:
         _piece.ResetCubePos()
-        updatePos = (0, 6, -2)
+        updatePos = (0.7, 8, -2)
         _piece.SetPos(updatePos)
         OnStart = False
 
@@ -114,42 +114,49 @@ def Update(deltaTime, pieces):
 
     # Check if piece hits the bottom
     move = np.asfarray([0, -2*deltaTime, 0])
-    if move[1] + _piece.GetPos()[1] <= -5:
-        #NEW:
-        #Update index to next index and grab a new next index
-        index = nextIndex
-        nextIndex = random.randint(0, 6)
-        # Redner next image icon
-        #UI.render_image(75, 50, 50, 200, icons[nextIndex])
-        #NEW
-        #index = random.randint(0, 6)
-        OnStart = True
-        move[1] += 24
+
+    if move[1] + _piece.GetPos()[1] <= 4:
+        #if move[1] + _piece.GetPos()[1] <= -4 or not Pieces.checkCubeCol():
+        if move[1] + _piece.GetPos()[1] + _piece.cubes[1].GetCubePos()[1] <= -6 or \
+            move[1] + _piece.GetPos()[1] + _piece.cubes[3].GetCubePos()[1] <= -6 or \
+            not Pieces.checkCubeCol(_piece):
+
+            #Update index to next index and grab a new next index
+            index = nextIndex
+            nextIndex = random.randint(0, 6)
+
+            #Set the next piece display
+            icon_idx = nextIndex
+
+            for cube in _piece.cubes:
+                cube.SetCubePos(cube.GetCubePos() + _piece.GetPos())
+                Pieces.freezeCubes(cube)
+
+            OnStart = True
+            move[1] += 24
 
     #Check if piece is close to bottom. If so, toggle cubes to fade
-    if move[1] + _piece.GetPos()[1] <= -4:
+    if move[1] + _piece.GetPos()[1] <= -8: # temporary to get cubes to stack at bottom
         #Toggle cubes of piece to fade out
         _piece.ToggleCubes(False, True)
 
-    # Check if piece is not at z limit then move
-    if _piece.GetPos()[2] >= -4:
-        if moveUp:
-            move[2] += -2
-            moveUp = False
-    if _piece.GetPos()[2] <= 1.5:
-        if moveDown:
-            move[2] += 2
-            moveDown = False
-
-    # Check if piece is not at x limit then move
-    if _piece.GetPos()[0] >= -3:
-        if moveLeft:
-            move[0] += -2
-            moveLeft = False
-    if _piece.GetPos()[0] <= 1.5:
-        if moveRight:
-            move[0] += 2
-            moveRight = False
+    # Key bindings
+    # Move piece on z axis
+    if moveUp:
+        #inside = _piece.CheckInBounds()
+        #if inside:
+        move[2] += -2
+        moveUp = False
+    if moveDown:
+        move[2] += 2
+        moveDown = False
+    # Move piece on x axis
+    if moveLeft:
+        move[0] += -2
+        moveLeft = False
+    if moveRight:
+        move[0] += 2
+        moveRight = False
 
     # Rotate piece
     if rotateLeft:
@@ -164,9 +171,36 @@ def Update(deltaTime, pieces):
 
     _piece.Update(deltaTime, move, _isGamePaused)
 
-def Render(piece):
+def Render():
     global _piece
+    global icon_idx
 
-    _piece = piece
+    # screen size
+    width, height = 640, 750
+
+    # Setting up orthographic projection for text rendering
+    glMatrixMode(GL_PROJECTION)
+    glPushMatrix()
+    glLoadIdentity()
+    gluOrtho2D(0, width, height, 0)
+    glMatrixMode(GL_MODELVIEW)
+    glPushMatrix()
+    glLoadIdentity()
+    
+    #Render the image
+    UI.render_image(70, 50, 100, 100, image_path=icons[icon_idx])
+
+    # Render the text
+    UI.render_text("next", 50, 10, 48)
+
+    # Restore the previous projection and modelview matrices
+    glPopMatrix()
+    glMatrixMode(GL_PROJECTION)
+    glPopMatrix()
+    glMatrixMode(GL_MODELVIEW)
 
     _piece.Render()
+    
+    if Pieces.CubeList:
+        for cube in Pieces.CubeList:
+            cube.Render()

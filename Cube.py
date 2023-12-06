@@ -43,6 +43,11 @@ _verts = np.float32([(1, -1, -1, 0, 0, -1, 0, 0),   # first - 8 vertices x 3
                     (-1, -1, 1, 0, -1, 0, 0, 1)
                     ])
 
+borders = (
+    (-5, 5),
+    (-12, 30),
+    (-6, 4)
+)
 def Init():
     global _shader
     global _vbo
@@ -136,6 +141,15 @@ class Cube:
     def SetCubePos(self, newPos):
         self.localPos = newPos
 
+    # Check if cube is in bounds
+    def CheckInBounds(self, piece):
+        for i in range(3): # for each axis (x,y,z)
+            pos = np.round(self.GetCubePos()) + np.round(piece.GetPos())
+            # checks if each axis value is between border limits for that axis
+            if pos[i] <= borders[i][0] or pos[i] >= borders[i][1]:
+                return False  # Cube is out of bounds for at least one dimension
+
+        return True  # All cubes are within bounds for all dimensions
 
     #NEW
     #Fade in a cube over 1/6 of a second
@@ -166,7 +180,7 @@ class Cube:
 
     def Update(self, deltaTime, move):
         self.ang += 50.0 * deltaTime
-        #self.localPos += move
+        #self.localPos += move #This was commented out on mine #BUG
 
         #NEW
         #If cube is appearing, call fade in function
@@ -220,8 +234,8 @@ class Cube:
         finally:
             shaders.glUseProgram(0)
     
-
-    def Render(self, scale_factor=0.75, block_spacing=0.25):  # Change these 2 values to adjust size
+    # 0.75, 0.25
+    def Render(self, scale_factor=1, block_spacing=0):  # Change these 2 values to adjust size
         #m = glGetDouble(GL_MODELVIEW_MATRIX)
 
         glPushMatrix()
@@ -234,15 +248,3 @@ class Cube:
         glPopMatrix()
 
         #glLoadMatrixf(m)
-
-# quaternians rotation matrix 
-def axis_rotation_matrix(angle, axis):
-    axis = np.asarray(axis)
-    axis = axis / np.sqrt(np.dot(axis, axis))
-    q = np.array([np.cos(angle / 2.0), *(-axis * np.sin(angle / 2.0))])
-    rotation_matrix = np.array([
-        [1 - 2 * (q[2]**2 + q[3]**2), 2 * (q[1] * q[2] - q[0] * q[3]), 2 * (q[1] * q[3] + q[0] * q[2])],
-        [2 * (q[1] * q[2] + q[0] * q[3]), 1 - 2 * (q[1]**2 + q[3]**2), 2 * (q[2] * q[3] - q[0] * q[1])],
-        [2 * (q[1] * q[3] - q[0] * q[2]), 2 * (q[2] * q[3] + q[0] * q[1]), 1 - 2 * (q[1]**2 + q[2]**2)],
-    ])
-    return rotation_matrix
