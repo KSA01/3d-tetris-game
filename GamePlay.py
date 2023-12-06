@@ -9,6 +9,11 @@ import random
 import Pieces
 import UI
 
+#Camera
+import Border
+import Camera
+#Camera
+
 icons = (
     "Icons/IIcon.png",
     "Icons/JIcon.png",
@@ -28,12 +33,22 @@ def Init():
     global OnStart
     global moveUp, moveDown, moveLeft, moveRight, rotateLeft, rotateRight, rotateDown
 
+    #Camera
+    global camUp, camDown, camLeft, camRight
+    camUp, camDown, camLeft, camRight = False, False, False, False
+    #Camera
+
     Pieces.Init() # Calls to run Pieces Init()
     OnStart = True
     moveUp, moveDown, moveLeft, moveRight, rotateLeft, rotateRight, rotateDown = False, False, False, False, False, False, False
 
 def ProcessEvent(event):
     global moveUp, moveDown, moveLeft, moveRight, rotateLeft, rotateRight, rotateDown
+    
+    #Camera
+    global camUp, camDown, camLeft, camRight
+    #Camera
+
     #add player key shift movements using arrow keys
     if event.type == pygame.KEYDOWN:
         if event.key == pygame.K_LEFT:
@@ -51,6 +66,17 @@ def ProcessEvent(event):
         elif event.key == pygame.K_s:
             rotateDown = True
 
+    #Camera
+        if event.key == pygame.K_i:
+            camUp = True
+        elif event.key == pygame.K_k:
+            camDown = True
+        elif event.key == pygame.K_j:
+            camLeft = True
+        elif event.key == pygame.K_l:
+            camRight = True
+    #Camera
+
     return False
 
 index = random.randint(0, 6)
@@ -64,24 +90,18 @@ icon_idx = nextIndex
 
 _isGamePaused = False  # A new global variable to track the pause state
 
-def Pause(pieces):
+def Pause():
     global _isGamePaused
     global _piece
-
-    #Bandaid solution, commented out
-    #_piece = pieces[index]
 
     _isGamePaused = True
     #TODO: When this function is called, trigger all cubes on screen to disappear (on final assignment)
     #Toggle current piece to disappear
     _piece.ToggleCubes(False, True)
 
-def Resume(pieces):
+def Resume():
     global _isGamePaused
     global _piece
-
-    #Bandaid solution, commented out
-    #_piece = pieces[index]
 
     _isGamePaused = False
 
@@ -98,6 +118,10 @@ def Update(deltaTime, pieces):
     #NEW
     global OnStart
     global moveUp, moveDown, moveLeft, moveRight, rotateLeft, rotateRight, rotateDown
+
+    #Camera
+    global camUp, camDown, camLeft, camRight
+    #Camera
 
     _piece = pieces[index]
 
@@ -140,11 +164,67 @@ def Update(deltaTime, pieces):
         #Toggle cubes of piece to fade out
         _piece.ToggleCubes(False, True)
 
+    #Camera-Relative Movement Update
+    #BUG: Need proper out of bounds checks, movement doesn't always work after camera turns
+
+    #Get the axis currently facing camera
+    if moveUp or moveDown or moveLeft or moveRight:
+        curSide = Camera.getCurSide()
+        print(curSide)
+
+    # Check if piece is not at z limit then move
+    '''if _piece.GetPos()[2] >= -4:
+        if moveUp:
+            if curSide == 'z':
+                move[2] += -2
+            elif curSide == 'x':
+                move[0] += 2
+            elif curSide == '-z':
+                move[2] += 2
+            elif curSide == '-x':
+                move[0] += -2
+            moveUp = False
+    if _piece.GetPos()[2] <= 1.5:
+        if moveDown:
+            if curSide == 'z':
+                move[2] += 2
+            elif curSide == 'x':
+                move[0] += -2
+            elif curSide == '-z':
+                move[2] += -2
+            elif curSide == '-x':
+                move[0] += 2
+            moveDown = False
+
+    # Check if piece is not at x limit then move
+    if _piece.GetPos()[0] >= -3:
+        if moveLeft:
+            if curSide == 'z':
+                move[0] += -2
+            elif curSide == 'x':
+                move[2] += -2
+            elif curSide == '-z':
+                move[0] += 2
+            elif curSide == '-x':
+                move[2] += 2
+            moveLeft = False
+    if _piece.GetPos()[0] <= 3:
+        if moveRight:
+            if curSide == 'z':
+                move[0] += 2
+            elif curSide == 'x':
+                move[2] += 2
+            elif curSide == '-z':
+                move[0] += -2
+            elif curSide == '-x':
+                move[2] += -2
+            moveRight = False   '''
+
+
+    # Need to try and incorporate updated keys code
     # Key bindings
     # Move piece on z axis
     if moveUp:
-        #inside = _piece.CheckInBounds()
-        #if inside:
         move[2] += -2
         moveUp = False
     if moveDown:
@@ -171,12 +251,57 @@ def Update(deltaTime, pieces):
 
     _piece.Update(deltaTime, move, _isGamePaused)
 
+    #Camera
+    if camUp:
+        #print("Cam up")
+        Camera.toggleCamMove(0, 1)
+        #Border.rotateCamera(0)
+        camUp = False
+    elif camDown:
+        #print("Cam down")
+        Camera.toggleCamMove(0, -1)
+        #Border.rotateCamera(1)
+        camDown = False
+    elif camLeft:
+        #print("Cam left")
+        Camera.toggleCamMove(1, 0)
+        #Border.rotateCamera(2)
+        camLeft = False
+    elif camRight:
+        #print("Cam right")
+        Camera.toggleCamMove(-1, 0)
+        #Border.rotateCamera(3)
+        camRight = False
+    #Camera
+
+
 def Render():
     global _piece
     global icon_idx
 
     # screen size
     width, height = 640, 750
+
+    # Setting up orthographic projection for text rendering
+    glMatrixMode(GL_PROJECTION)
+    glPushMatrix()
+    glLoadIdentity()
+    gluOrtho2D(0, width, height, 0)
+    glMatrixMode(GL_MODELVIEW)
+    glPushMatrix()
+    glLoadIdentity()
+    
+    #Render the image
+    UI.render_image(70, 50, 100, 100, image_path=icons[icon_idx])
+
+    # Render the text
+    UI.render_text("next", 50, 10, 48)
+
+    # Restore the previous projection and modelview matrices
+    glPopMatrix()
+    glMatrixMode(GL_PROJECTION)
+    glPopMatrix()
+    glMatrixMode(GL_MODELVIEW)
 
     # Setting up orthographic projection for text rendering
     glMatrixMode(GL_PROJECTION)
