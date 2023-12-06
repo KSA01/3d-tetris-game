@@ -157,9 +157,9 @@ def Update(deltaTime, pieces):
 
             # Adds cubes to a seperate list to keep in place at bottom
             for cube in _piece.cubes:
-                #staticCube = copy.deepcopy(cube)
-                cube.SetCubePos(cube.GetCubePos() + _piece.GetPos())
-                Pieces.freezeCubes(cube)
+                staticCube = copy.deepcopy(cube)
+                staticCube.SetCubePos(cube.GetCubePos() + _piece.GetPos())
+                Pieces.freezeCubes(staticCube)
 
             OnStart = True
             move[1] += 24
