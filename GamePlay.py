@@ -127,7 +127,7 @@ def Update(deltaTime, pieces):
 
     if OnStart:
         _piece.ResetCubePos()
-        updatePos = (0.7, 8, -2)
+        updatePos = (1, 10, -1)
         _piece.SetPos(updatePos)
         OnStart = False
 
@@ -139,10 +139,11 @@ def Update(deltaTime, pieces):
     # Check if piece hits the bottom
     move = np.asfarray([0, -2*deltaTime, 0])
 
-    if move[1] + _piece.GetPos()[1] <= 4:
-        #if move[1] + _piece.GetPos()[1] <= -4 or not Pieces.checkCubeCol():
-        if move[1] + _piece.GetPos()[1] + _piece.cubes[1].GetCubePos()[1] <= -6 or \
-            move[1] + _piece.GetPos()[1] + _piece.cubes[3].GetCubePos()[1] <= -6 or \
+    if move[1] + _piece.GetPos()[1] <= 5:
+        if move[1] + _piece.GetPos()[1] + _piece.cubes[0].GetCubePos()[1] <= -5 or \
+            move[1] + _piece.GetPos()[1] + _piece.cubes[1].GetCubePos()[1] <= -5 or \
+            move[1] + _piece.GetPos()[1] + _piece.cubes[2].GetCubePos()[1] <= -5 or \
+            move[1] + _piece.GetPos()[1] + _piece.cubes[3].GetCubePos()[1] <= -5 or \
             not Pieces.checkCubeCol(_piece):
 
             #Update index to next index and grab a new next index
@@ -152,6 +153,7 @@ def Update(deltaTime, pieces):
             #Set the next piece display
             icon_idx = nextIndex
 
+            # Adds cubes to a seperate list to keep in place at bottom
             for cube in _piece.cubes:
                 cube.SetCubePos(cube.GetCubePos() + _piece.GetPos())
                 Pieces.freezeCubes(cube)
@@ -172,70 +174,48 @@ def Update(deltaTime, pieces):
         curSide = Camera.getCurSide()
         print(curSide)
 
-    # Check if piece is not at z limit then move
-    '''if _piece.GetPos()[2] >= -4:
-        if moveUp:
-            if curSide == 'z':
-                move[2] += -2
-            elif curSide == 'x':
-                move[0] += 2
-            elif curSide == '-z':
-                move[2] += 2
-            elif curSide == '-x':
-                move[0] += -2
-            moveUp = False
-    if _piece.GetPos()[2] <= 1.5:
-        if moveDown:
-            if curSide == 'z':
-                move[2] += 2
-            elif curSide == 'x':
-                move[0] += -2
-            elif curSide == '-z':
-                move[2] += -2
-            elif curSide == '-x':
-                move[0] += 2
-            moveDown = False
-
-    # Check if piece is not at x limit then move
-    if _piece.GetPos()[0] >= -3:
-        if moveLeft:
-            if curSide == 'z':
-                move[0] += -2
-            elif curSide == 'x':
-                move[2] += -2
-            elif curSide == '-z':
-                move[0] += 2
-            elif curSide == '-x':
-                move[2] += 2
-            moveLeft = False
-    if _piece.GetPos()[0] <= 3:
-        if moveRight:
-            if curSide == 'z':
-                move[0] += 2
-            elif curSide == 'x':
-                move[2] += 2
-            elif curSide == '-z':
-                move[0] += -2
-            elif curSide == '-x':
-                move[2] += -2
-            moveRight = False   '''
-
-
-    # Need to try and incorporate updated keys code
     # Key bindings
     # Move piece on z axis
     if moveUp:
-        move[2] += -2
+        if curSide == 'z':
+            move[2] += -2
+        elif curSide == 'x':
+            move[0] += 2
+        elif curSide == '-z':
+            move[2] += 2
+        elif curSide == '-x':
+            move[0] += -2
         moveUp = False
     if moveDown:
-        move[2] += 2
+        if curSide == 'z':
+            move[2] += 2
+        elif curSide == 'x':
+            move[0] += -2
+        elif curSide == '-z':
+            move[2] += -2
+        elif curSide == '-x':
+            move[0] += 2
         moveDown = False
     # Move piece on x axis
     if moveLeft:
-        move[0] += -2
+        if curSide == 'z':
+            move[0] += -2
+        elif curSide == 'x':
+            move[2] += -2
+        elif curSide == '-z':
+            move[0] += 2
+        elif curSide == '-x':
+            move[2] += 2
         moveLeft = False
     if moveRight:
-        move[0] += 2
+        if curSide == 'z':
+            move[0] += 2
+        elif curSide == 'x':
+            move[2] += 2
+        elif curSide == '-z':
+            move[0] += -2
+        elif curSide == '-x':
+            move[2] += -2
         moveRight = False
 
     # Rotate piece
@@ -250,6 +230,10 @@ def Update(deltaTime, pieces):
         rotateDown = False
 
     _piece.Update(deltaTime, move, _isGamePaused)
+
+    if Pieces.CubeList:
+        for cube in Pieces.CubeList:
+            cube.Update(deltaTime)
 
     #Camera
     if camUp:

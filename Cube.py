@@ -44,10 +44,11 @@ _verts = np.float32([(1, -1, -1, 0, 0, -1, 0, 0),   # first - 8 vertices x 3
                     ])
 
 borders = (
-    (-5, 5),
+    (-4, 4),
     (-12, 30),
-    (-6, 4)
+    (-4, 4)
 )
+
 def Init():
     global _shader
     global _vbo
@@ -178,7 +179,7 @@ class Cube:
                 self.disappearing = False
                 #print("Fully transparent")
 
-    def Update(self, deltaTime, move):
+    def Update(self, deltaTime):
         self.ang += 50.0 * deltaTime
         #self.localPos += move #This was commented out on mine #BUG
 
@@ -234,15 +235,11 @@ class Cube:
         finally:
             shaders.glUseProgram(0)
     
-    # 0.75, 0.25
-    def Render(self, scale_factor=1, block_spacing=0):  # Change these 2 values to adjust size
+    def Render(self):  # Change these 2 values to adjust size
         #m = glGetDouble(GL_MODELVIEW_MATRIX)
 
         glPushMatrix()
-        #glTranslatef(*self.localPos)     # Translates the local position of each cube from pieces.py
-        glScalef(scale_factor, scale_factor, scale_factor)
-        adjusted_translation = [pos * (scale_factor + block_spacing) for pos in self.localPos]
-        glTranslatef(*adjusted_translation)
+        glTranslatef(*self.localPos)     # Translates the local position of each cube from pieces.py
         #glRotatef(self.ang, *self.axis)
         self._DrawBlock()
         glPopMatrix()

@@ -29,9 +29,9 @@ filepaths = (
 )
 
 borders = (
-    (-5, 5),
+    (-4, 4),
     (-12, 30),
-    (-6, 4)
+    (-4, 4)
 )
 
 pieceNames = ["I", "J", "L", "O", "S", "T", "Z"]  # List of pieces by name
@@ -45,7 +45,7 @@ CubeList = []
 def createTetrisPieces():
 
     for i in range(len(pieceNames)):
-        piece = Piece(position=(i*3, 18, i*-2), color=colors[i], name=pieceNames[i], filepath=filepaths[i]) 
+        piece = Piece(position=(0, 18, 0), color=colors[i], name=pieceNames[i], filepath=filepaths[i]) 
         tetrisPieces.append(piece)
 
     return tetrisPieces
@@ -55,6 +55,7 @@ def checkCubeCol(piece):
     for cube in piece.cubes:
         locPos = np.round(cube.GetCubePos()) + np.round(piece.GetPos())
 
+        #print(CubeList[1].GetCubePos())
         if any(np.array_equal(locPos, pos.GetCubePos()) for pos in CubeList):
             print("overlaps")
             return False # overlaps
@@ -177,7 +178,7 @@ class Piece:
 
         #TEST: Update Cubes within piece regardless of pause status
         for cube in self.cubes:
-            cube.Update(deltaTime, move)
+            cube.Update(deltaTime)
 
     def Render(self):
         #m = glGetDouble(GL_MODELVIEW_MATRIX)
