@@ -9,6 +9,8 @@ import random
 import Pieces
 import UI
 
+import copy
+
 #Camera
 import Border
 import Camera
@@ -155,6 +157,7 @@ def Update(deltaTime, pieces):
 
             # Adds cubes to a seperate list to keep in place at bottom
             for cube in _piece.cubes:
+                #staticCube = copy.deepcopy(cube)
                 cube.SetCubePos(cube.GetCubePos() + _piece.GetPos())
                 Pieces.freezeCubes(cube)
 
@@ -265,27 +268,6 @@ def Render():
 
     # screen size
     width, height = 640, 750
-
-    # Setting up orthographic projection for text rendering
-    glMatrixMode(GL_PROJECTION)
-    glPushMatrix()
-    glLoadIdentity()
-    gluOrtho2D(0, width, height, 0)
-    glMatrixMode(GL_MODELVIEW)
-    glPushMatrix()
-    glLoadIdentity()
-    
-    #Render the image
-    UI.render_image(70, 50, 100, 100, image_path=icons[icon_idx])
-
-    # Render the text
-    UI.render_text("next", 50, 10, 48)
-
-    # Restore the previous projection and modelview matrices
-    glPopMatrix()
-    glMatrixMode(GL_PROJECTION)
-    glPopMatrix()
-    glMatrixMode(GL_MODELVIEW)
 
     # Setting up orthographic projection for text rendering
     glMatrixMode(GL_PROJECTION)
