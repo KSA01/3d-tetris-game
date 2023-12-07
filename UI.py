@@ -28,7 +28,7 @@ def render_text(text, x, y, font_size):
     # Render the text as a texture
     glEnable(GL_TEXTURE_2D)
     glBindTexture(GL_TEXTURE_2D, text_texture)
-    glColor3f(1.0, 1.0, 0.0) # sets the color of the text - yellow
+    glColor3f(1.0, 1.0, 0.0) # sets the color of the text - red
     glBegin(GL_QUADS)
     # Map the text texture onto a quad
     glTexCoord2f(0, 1); glVertex2f(x, y)

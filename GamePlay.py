@@ -9,7 +9,7 @@ import random
 import Pieces
 import UI
 
-import copy
+import copy # for copying cubes to CubeList
 
 #Camera
 import Border
@@ -40,8 +40,13 @@ def Init():
     camUp, camDown, camLeft, camRight = False, False, False, False
     #Camera
 
-    Pieces.Init() # Calls to run Pieces Init()
     OnStart = True
+
+    Pieces.Init() # Calls to run Cube Init() through Pieces file
+    #Camera
+    Camera.Init()
+    #Camera
+
     moveUp, moveDown, moveLeft, moveRight, rotateLeft, rotateRight, rotateDown = False, False, False, False, False, False, False
 
 def ProcessEvent(event):
@@ -92,6 +97,12 @@ icon_idx = nextIndex
 
 _isGamePaused = False  # A new global variable to track the pause state
 
+#Change the value of appearing and disappearing for all cubes within piece (pass in a boolean for appear and disappear)
+def ToggleVisible(list, appear, disappear):
+    for cube in list:
+        cube.appearing = appear
+        cube.disappearing = disappear
+
 def Pause():
     global _isGamePaused
     global _piece
@@ -100,6 +111,7 @@ def Pause():
     #TODO: When this function is called, trigger all cubes on screen to disappear (on final assignment)
     #Toggle current piece to disappear
     _piece.ToggleCubes(False, True)
+    ToggleVisible(Pieces.CubeList, False, True)
 
 def Resume():
     global _isGamePaused
@@ -110,6 +122,7 @@ def Resume():
     #TODO: When this function is called, trigger all cubes on screen to appear (on final assignment)
     #Toggle current piece to appear
     _piece.ToggleCubes(True, False)
+    ToggleVisible(Pieces.CubeList, True, False)
 
 def Update(deltaTime, pieces):
     global _piece
@@ -125,11 +138,12 @@ def Update(deltaTime, pieces):
     global camUp, camDown, camLeft, camRight
     #Camera
 
-    _piece = pieces[index]
+    if pieces:
+        _piece = pieces[index]
 
     if OnStart:
         _piece.ResetCubePos()
-        updatePos = (1, 10, -1)
+        updatePos = (1, 12, -1)
         _piece.SetPos(updatePos)
         OnStart = False
 
@@ -141,12 +155,16 @@ def Update(deltaTime, pieces):
     # Check if piece hits the bottom
     move = np.asfarray([0, -2*deltaTime, 0])
 
-    if move[1] + _piece.GetPos()[1] <= 5:
-        if move[1] + _piece.GetPos()[1] + _piece.cubes[0].GetCubePos()[1] <= -5 or \
-            move[1] + _piece.GetPos()[1] + _piece.cubes[1].GetCubePos()[1] <= -5 or \
-            move[1] + _piece.GetPos()[1] + _piece.cubes[2].GetCubePos()[1] <= -5 or \
-            move[1] + _piece.GetPos()[1] + _piece.cubes[3].GetCubePos()[1] <= -5 or \
+    if move[1] + _piece.GetPos()[1] <= 8:
+        if move[1] + _piece.GetPos()[1] + _piece.cubes[0].GetCubePos()[1] <= -5.01 or \
+            move[1] + _piece.GetPos()[1] + _piece.cubes[1].GetCubePos()[1] <= -5.01 or \
+            move[1] + _piece.GetPos()[1] + _piece.cubes[2].GetCubePos()[1] <= -5.01 or \
+            move[1] + _piece.GetPos()[1] + _piece.cubes[3].GetCubePos()[1] <= -5.01 or \
             not Pieces.checkCubeCol(_piece):
+
+            if not Pieces.checkCubeCol(_piece):
+                _piece.position = _piece.prevPosition
+                _piece.position[1] = np.ceil(_piece.prevPosition[1])
 
             #Update index to next index and grab a new next index
             index = nextIndex
@@ -158,7 +176,7 @@ def Update(deltaTime, pieces):
             # Adds cubes to a seperate list to keep in place at bottom
             for cube in _piece.cubes:
                 staticCube = copy.deepcopy(cube)
-                staticCube.SetCubePos(cube.GetCubePos() + _piece.GetPos())
+                staticCube.SetCubePos(cube.GetCubePos() + np.rint(_piece.GetPos()))
                 Pieces.freezeCubes(staticCube)
 
             OnStart = True
@@ -232,6 +250,8 @@ def Update(deltaTime, pieces):
         _piece.Rotate(-90, (-2, 0, 0))
         rotateDown = False
 
+    _piece.prevPosition = np.copy(_piece.position)
+
     _piece.Update(deltaTime, move, _isGamePaused)
 
     if Pieces.CubeList:
@@ -260,7 +280,6 @@ def Update(deltaTime, pieces):
         #Border.rotateCamera(3)
         camRight = False
     #Camera
-
 
 def Render():
     global _piece

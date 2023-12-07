@@ -12,6 +12,7 @@ import Pieces
 import Border
 import GamePlay
 import UI
+import GameOver
 
 #Camera
 import Camera
@@ -38,9 +39,6 @@ glTranslate(1.0, 0.0, -26.0)     #translates the camera
 #glRotate(-15, 0, 1, 0)           #rotate -15 degrees around y
 #glRotate(30, 1, 0, 0)            #rotate 30 degrees around x
 
-Cube.Init()
-#cube = Cube.Cube()
-#cube = SlowCube()
 GamePlay.Init()
 
 #ALFREDO
@@ -60,10 +58,6 @@ for piece in tetrisPieces:
 
 #print("NUMBER OF CUBES: " + str(tetrisCubes))
 
-#Camera
-Camera.Init()
-#Camera
-
 def Update(deltaTime):
     #ALFREDO
     global _isPaused #Access the global pause variable
@@ -76,9 +70,9 @@ def Update(deltaTime):
         if event.type == pygame.KEYDOWN and event.key == pygame.K_ESCAPE: #Check if ESC key is pressed
             _isPaused = not _isPaused #Toggle the pause state
             if _isPaused:
-                GamePlay.Pause(tetrisPieces) # Call a new function to handle pause in GamePlay
+                GamePlay.Pause() # Call a new function to handle pause in GamePlay
             else:
-                GamePlay.Resume(tetrisPieces) # Call a new function to handle resume in GamePlay
+                GamePlay.Resume() # Call a new function to handle resume in GamePlay
             continue
         if _isPaused:
             continue # Skip the rest of the loop if the game is paused
@@ -107,6 +101,10 @@ def Update(deltaTime):
 def Render():
     glClear(GL_COLOR_BUFFER_BIT|GL_DEPTH_BUFFER_BIT)
 
+    if not Pieces.CheckForCeil():  # Checks if any cubes have hit the ceiling
+        GamePlay.Pause()
+        GameOver.Render()
+        
     #NEW
     #Render Border first so transparency works correctly
     Border.Render()

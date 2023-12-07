@@ -7,6 +7,8 @@ import random
 from Cube import *
 from Texture import Texture
 
+import copy # for copying cubes to CubeList
+
 #[r,g,b,a]
 colors = (
         [0,1,1,1], # Cyan 0
@@ -30,7 +32,7 @@ filepaths = (
 
 borders = (
     (-4, 4),
-    (-12, 30),
+    (-5, 30),
     (-4, 4)
 )
 
@@ -54,21 +56,28 @@ def checkCubeCol(piece):
     # Collect position of all cubes in the piece
     for cube in piece.cubes:
         locPos = np.round(cube.GetCubePos()) + np.round(piece.GetPos())
-
-        #print(CubeList[1].GetCubePos())
-        if any(np.array_equal(locPos, pos.GetCubePos()) for pos in CubeList):
-            print("overlaps")
-            return False # overlaps
+        
+        # Check if any cube in CubeList is within a distance of 2 in all three axes
+        if any(all(np.abs(locPos - np.round(pos.GetCubePos())) < 2) for pos in CubeList):
+            print("Overlaps")
+            return False  # overlaps
 
     return True # no overlaps
 
 def freezeCubes(cube):
     CubeList.append(cube)
 
+# function for ending the game once the player has lost
+def CheckForCeil():
+    if CubeList:
+        for cube in CubeList:
+            if np.rint(cube.GetCubePos()[1]) >= 6:
+                return False
+    
+    return True
+
 class Piece:
     def __init__(self, position, color, name, filepath):
-        #Init()
-
         self.name = name
         if self.name == "I":
             self.localPositions = [(0, 0, 0), (0, -2, 0), (0, 2, 0), (0, 4, 0)]
@@ -129,7 +138,7 @@ class Piece:
         for cube in self.cubes:
             cube.appearing = appear
             cube.disappearing = disappear
-  
+
     # Rotation function for piece
     def Rotate(self, angle, axis):
         curLocalPositions = [(0, 0, 0), (0, 0, 0), (0, 0, 0), (0, 0, 0)]
@@ -145,7 +154,7 @@ class Piece:
         # checks if cubes are in bounds before completing rotation
         for cube in self.cubes:
             cube.localPos = np.rint(np.dot(cube.localPos - center, rotation_matrix)) + center
-            if not cube.CheckInBounds(piece=self):
+            if not self.CheckInBounds() or not checkCubeCol(self):
                 self.RevertCubePos(curLocalPositions)
                 break
 
@@ -153,7 +162,7 @@ class Piece:
     def CheckInBounds(self):
         for cube in self.cubes:
             for i in range(3): # for each axis (x,y,z)
-                pos = np.round(cube.GetCubePos()) + np.round(self.position)
+                pos = cube.GetCubePos() + np.rint(self.position)
                 # checks if each axis value is between border limits for that axis
                 if pos[i] <= borders[i][0] or pos[i] >= borders[i][1]:
                     return False  # Cube is out of bounds for at least one dimension
