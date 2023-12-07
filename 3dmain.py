@@ -1,64 +1,51 @@
-# 3dmain.py
-
-import numpy as np
 import pygame
+import numpy as np
 from pygame.locals import *
 from OpenGL.GL import *
 from OpenGL.GLU import *
-#from SlowCube import SlowCube
-from SlowTriangle import SlowTriangle
-import Cube
-import Pieces
-import Border
-import GamePlay
-
-#Need to install for UI
 from freetype import *
 import pygame.freetype
+from SlowCube import SlowCube 
+from SlowTriangle import SlowTriangle 
+import Cube
+import Triangle
+import Border
+import GamePlay 
 
+# Initialize the objects
+cube = SlowCube()
+triangle = SlowTriangle()
+_isPaused = False  
+# _nextPiece = triangle  
+
+# Initialize Pygame and OpenGL
 pygame.init()
-size = width, height = 640, 750
+size = width, height = 840, 680
 screen = pygame.display.set_mode(size, DOUBLEBUF|OPENGL)
 
+# Set up the OpenGL context
 glMatrixMode(GL_PROJECTION)
-gluPerspective(45, (width/height), 0.1, 50.0)
+gluPerspective(45, (width/height), 0.1, 50.0)  # Set the perspective projection
 glMatrixMode(GL_MODELVIEW)
+glTranslate(1.0, 0.0, -20)  # Move the viewpoint backwards to view the objects
+glRotate(-15, 0, 1, 0)
+glRotate(30, 1, 0, 0) 
+
+Cube.Init()
+Triangle.Init()
+GamePlay.Init()
+
+
+# Enable depth testing for 3D rendering
 glEnable(GL_DEPTH_TEST)
 glDepthFunc(GL_LESS)
 
-#NEW
-glEnable(GL_BLEND)
-glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA)
-
-glTranslate(1.0, 0.0, -30.0)     #translates the camera
-glRotate(-15, 0, 1, 0)           #rotate -15 degrees around y
-glRotate(30, 1, 0, 0)            #rotate 30 degrees around x
-
-Cube.Init()
-#cube = Cube.Cube()
-#cube = SlowCube()
-GamePlay.Init()
-_isPaused = False  
-
-#UI
-triangle = SlowTriangle()
-#UI
-
-tetrisPieces = Pieces.createTetrisPieces()
-#print("NUM TETRIS PIECES: " + str(len(tetrisPieces)))
-
-tetrisCubes = 0
-for piece in tetrisPieces:
-    tetrisCubes += len(piece.cubes)
-
-#print("NUMBER OF CUBES: " + str(tetrisCubes))
-
-
-
-#UI
-
 # Font settings for rendering text
 font_path = "font/Freedom-10eM.ttf"  # Replace with your font file path
+WHITE = (255, 255, 255)
+RED = (255, 0, 0)
+
+# score_value = 0
 
 def render_text(text, x, y, font_size):
     """ Renders text onto the screen """
@@ -87,15 +74,12 @@ def render_text(text, x, y, font_size):
     glDisable(GL_TEXTURE_2D)
 
     # Clean up the texture
-    #glDeleteTextures(text_texture)
+    glDeleteTextures(text_texture)
 
-#UI
-
-
-
-
-
-
+# def draw_score(screen, score, x, y):
+#     """Draw the score on the screen"""
+#     score = font_path.render("Score: " + str(score_value), True, (255, 255, 255))
+#     screen.blit(score, (x, y))
 
 
 def Update(deltaTime):
@@ -118,35 +102,35 @@ def Update(deltaTime):
             continue
 
     if not _isPaused:  # Only update game state if not paused
-        GamePlay.Update(deltaTime, tetrisPieces)
-
-    #GamePlay.Update(deltaTime)
-
-    #cube.Update(deltaTime)
-    #for piece in tetrisPieces:
-        #piece.Update(deltaTime)
-    # GamePlay.Update(deltaTime, tetrisPieces)
-
-    #UI
-    triangle.Update(deltaTime)
-    #UI
+        GamePlay.Update(deltaTime)
 
     return True
 
-def Render():
+# def drawNextPiece():
+#     global _nextPiece
+
+#     # Assuming _nextPiece contains information about the piece type
+#     # Load the corresponding image. For simplicity, let's assume an image loading function `loadImage(pieceType)`
+#     pieceImage = loadImage(_nextPiece)
+
+#     # Position for the top left corner
+#     x, y = 10, 10  # You can adjust these values as needed
+
+#     # Draw the image at (x, y)
+#     glBindTexture(GL_TEXTURE_2D, pieceImage)
+#     glBegin(GL_QUADS)
+#     glTexCoord2f(0, 0); glVertex2f(x, y)
+#     glTexCoord2f(1, 0); glVertex2f(x + pieceImageWidth, y)
+#     glTexCoord2f(1, 1); glVertex2f(x + pieceImageWidth, y + pieceImageHeight)
+#     glTexCoord2f(0, 1); glVertex2f(x, y + pieceImageHeight)
+#     glEnd()
+#     glBindTexture(GL_TEXTURE_2D, 0)
+
+
+def Render(score):
+    """ Handles the rendering of objects and text """
     glClear(GL_COLOR_BUFFER_BIT|GL_DEPTH_BUFFER_BIT)
 
-    #NEW
-    #Render Border first so transparency works correctly
-    Border.Render()
-
-    #cube.Render()
-    for piece in tetrisPieces:
-        #piece.Render()
-        GamePlay.Render(piece)
-    
-    #GamePlay.Render()
-    
     # Setting up orthographic projection for text rendering
     glMatrixMode(GL_PROJECTION)
     glPushMatrix()
@@ -157,7 +141,7 @@ def Render():
     glLoadIdentity()
     
     # Render the text
-    render_text("     next", 10, 10, 48)
+    render_text(f"Score: {score}", 10, 10, 36)
 
     # Restore the previous projection and modelview matrices
     glPopMatrix()
@@ -174,10 +158,14 @@ def Render():
     # Update the display
     pygame.display.flip()
 
+# Main loop
+score = 0 
 _gTickLastFrame = pygame.time.get_ticks()
 _gDeltaTime = 0.0
 while Update(_gDeltaTime):
-    Render()
+    Render(score)
     t = pygame.time.get_ticks()
-    _gDeltaTime = (t - _gTickLastFrame) / 1000.0
+    _gDeltaTime = (t - _gTickLastFrame) / 1000.0  # Calculate the time since last frame
     _gTickLastFrame = t
+
+pygame.quit()
