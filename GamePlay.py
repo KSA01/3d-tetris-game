@@ -176,9 +176,10 @@ def Update(deltaTime, pieces):
 
     # keeps piece from moving into other cubes
     if not Pieces.checkCubeCol(_piece):
-        _piece.position[0] = _piece.prevPosition[0]
-        _piece.position[2] = _piece.prevPosition[2]
-        # retains y value for next collision check purposes
+        if Pieces.CheckForCeil():
+            _piece.position[0] = _piece.prevPosition[0]
+            _piece.position[2] = _piece.prevPosition[2]
+            # retains y value for next collision check purposes
 
     # Check if piece hits the bottom or stacks
     move = np.asfarray([0, -2*deltaTime, 0])
@@ -192,10 +193,11 @@ def Update(deltaTime, pieces):
 
             # if y value is now colliding after reverting x and z positions
             if not Pieces.checkCubeCol(_piece):
-                _piece.position = _piece.prevPosition
-                _piece.position[1] = np.ceil(_piece.prevPosition[1])
-                if (_piece.position[1] % 2) == 0:
-                    _piece.position[1] -= 1
+                if Pieces.CheckForCeil():
+                    _piece.position = _piece.prevPosition
+                    _piece.position[1] = np.ceil(_piece.prevPosition[1])
+                    if (_piece.position[1] % 2) == 0:
+                        _piece.position[1] -= 1
 
             #Update index to next index and grab a new next index
             index = nextIndex

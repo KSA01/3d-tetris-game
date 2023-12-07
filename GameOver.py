@@ -20,7 +20,7 @@ def Render():
     glLoadIdentity()
 
     # Render the text
-    UI.render_text("Game Over", 80, 320, 78)
+    UI.render_text("Game Over", 80, 320, 42)
 
     # Restore the previous projection and modelview matrices
     glPopMatrix()
