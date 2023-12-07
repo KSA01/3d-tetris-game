@@ -169,7 +169,7 @@ def Update(deltaTime, pieces):
     # Check if piece hits the bottom or stacks
     move = np.asfarray([0, -2*deltaTime, 0])
 
-    if move[1] + _piece.GetPos()[1] <= 8:
+    if move[1] + _piece.GetPos()[1] < 12:
         if move[1] + _piece.GetPos()[1] + _piece.cubes[0].GetCubePos()[1] <= -5.01 or \
             move[1] + _piece.GetPos()[1] + _piece.cubes[1].GetCubePos()[1] <= -5.01 or \
             move[1] + _piece.GetPos()[1] + _piece.cubes[2].GetCubePos()[1] <= -5.01 or \
@@ -325,7 +325,6 @@ def Render():
     UI.render_text("next", 50, 10, 48)
 
     # Render the score
-    print(score)
     UI.render_text(f"Score 0 {str(score)}", 450, 10, 36)
 
     # Restore the previous projection and modelview matrices
