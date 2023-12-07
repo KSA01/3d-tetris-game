@@ -57,7 +57,7 @@ def checkCubeCol(piece):
         
         # Check if any cube in CubeList is within a distance of 2 in all three axes
         if any(all(np.abs(locPos - np.round(pos.GetCubePos())) < 2) for pos in CubeList):
-            print("Overlaps")
+            #print("Overlaps")
             return False  # overlaps
 
     return True # no overlaps
@@ -160,12 +160,16 @@ class Piece:
             cube.appearing = appear
             cube.disappearing = disappear
 
+
     #Smooth Rotations
     #Takes a direction (left, right, down) and toggles the piece to rotate that way over 1/6s
     def ToggleRotate(self, dir):
         #If the piece is not currently rotating, toggle it to rotate in the given direction
         if self.rotateDir == None:
             self.rotateDir = dir
+
+            #Reset rads rotated counter (for new rotation)
+            self.radRotated = 0
 
             #Check axis facing the camera (for relative piece rotations)
             curSide = Camera.getCurSide()
@@ -187,13 +191,19 @@ class Piece:
                     self.rotateAxis = (0, 0, 2)
 
 
-    #Rotates a piece by a fraction of a 90 degree angle (for smooth rotations)
     def RotateSmooth(self, deltaTime):
         # defines cur/prev pos in case to revert
         curLocalPositions = [(0, 0, 0), (0, 0, 0), (0, 0, 0), (0, 0, 0)]
         for i, cube in enumerate(self.cubes):
             curPos = cube.GetCubePos()
             curLocalPositions[i] = np.rint(curPos)
+
+        #Tracks the rotation direction for this frame (for edge case)
+        #This is needed in case rotation gets cancelled on the last frame of rotation (and self.rotateDir is None when reverting rotation)
+        rotateDirThisFrame = self.rotateDir
+
+        #Tracks if the rotation has failed
+        failed = False
 
         center = np.asfarray(self.cubes[0].localPos)
 
@@ -205,13 +215,15 @@ class Piece:
             if (self.radRotated + mag) >= math.radians(90):
                 mag = math.radians(90) - self.radRotated
                 #Reset rotation counter and rotation status
-                self.radRotated = math.radians(0)
+                #self.radRotated = math.radians(0)
                 self.rotateDir = None
             else:
-                self.radRotated += mag
+                #self.radRotated += mag
+                pass
+
+            self.radRotated += mag
 
             angle = mag
-            
             axis = self.rotateAxis
 
         elif self.rotateDir == "right":
@@ -219,13 +231,15 @@ class Piece:
             if (self.radRotated + mag) >= math.radians(90):
                 mag = math.radians(90) - self.radRotated
                 #Reset rotation counter and rotation status
-                self.radRotated = math.radians(0)
+                #self.radRotated = math.radians(0)
                 self.rotateDir = None
             else:
-                self.radRotated += mag
+                #self.radRotated += mag
+                pass
+
+            self.radRotated += mag
 
             angle = mag
-
             axis = self.rotateAxis
 
         elif self.rotateDir == "down":
@@ -233,10 +247,13 @@ class Piece:
             if (self.radRotated + mag) >= math.radians(90):
                 mag = math.radians(90) - self.radRotated
                 #Reset rotation counter and rotation status
-                self.radRotated = math.radians(0)
+                #self.radRotated = math.radians(0)
                 self.rotateDir = None
             else:
-                self.radRotated += mag
+                #self.radRotated += mag
+                pass
+
+            self.radRotated += mag
 
             angle = -mag
             axis = self.rotateAxis
@@ -249,8 +266,27 @@ class Piece:
             
             # checks if in bounds or colliding and if so reverts cube positions 
             if not self.CheckInBounds() or not checkCubeCol(self):
-                self.RevertCubePos(curLocalPositions)
-                break
+                #print("collision detected, reverting rotation")
+                failed = True
+
+
+        if failed:
+                #print("collision detected, reverting rotation")
+
+                #self.RevertCubePos(curLocalPositions)
+
+                #Revert piece back to its original orientation by reversing the current rotation
+                if rotateDirThisFrame == "down":
+                    self.Rotate(self.radRotated, self.rotateAxis)
+                else:
+                    #print("reverting horiz rotation")
+                    self.Rotate(self.radRotated, (self.rotateAxis[0], -self.rotateAxis[1], self.rotateAxis[2]))
+
+                #Toggle the piece to stop rotating
+                self.rotateDir = None
+
+
+    #Smooth Rotations
 
 
     # Rotates a piece in one frame
