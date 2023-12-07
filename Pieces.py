@@ -6,6 +6,8 @@ import math
 from Cube import *
 from Texture import Texture
 
+import Camera
+
 #[r,g,b,a]
 colors = (
         [0,1,1,1], # Cyan 0
@@ -82,6 +84,10 @@ class Piece:
         self.radRotated = math.radians(0)
         #Smooth rotations
 
+        #Relative rotations
+        #The axis to rotate the pieces on (horizontal by default, changes when rotation is toggled)
+        self.rotateAxis = (0, -2, 0)
+
         self.name = name
         if self.name == "I":
             self.localPositions = [(0, 0, 0), (0, -2, 0), (0, 2, 0), (0, 4, 0)]
@@ -150,8 +156,27 @@ class Piece:
         if self.rotateDir == None:
             self.rotateDir = dir
 
-        print("Rotation status:")
-        print(self.rotateDir)
+            #Reset rads rotated counter (for new rotation)
+            self.radRotated = 0
+
+            #Check axis facing the camera (for relative piece rotations)
+            curSide = Camera.getCurSide()
+            
+            #If rotating left or right, rotate around y axis
+            if self.rotateDir == "left":
+                self.rotateAxis = (0, -2, 0)
+            elif self.rotateDir == "right":
+                self.rotateAxis = (0, 2, 0)
+            #If rotating down, rotate around x or z axis
+            elif self.rotateDir == "down":
+                if curSide == 'z':
+                    self.rotateAxis = (-2, 0, 0)
+                elif curSide == '-z':
+                    self.rotateAxis = (2, 0, 0)
+                elif curSide == 'x':
+                    self.rotateAxis = (0, 0, -2)
+                elif curSide == '-x':
+                    self.rotateAxis = (0, 0, 2)
 
 
     def RotateSmooth(self, deltaTime):
@@ -160,6 +185,13 @@ class Piece:
         for i, cube in enumerate(self.cubes):
             curPos = cube.GetCubePos()
             curLocalPositions[i] = np.rint(curPos)
+
+        #Tracks the rotation direction for this frame (for edge case)
+        #This is needed in case rotation gets cancelled on the last frame of rotation (and self.rotateDir is None when reverting rotation)
+        rotateDirThisFrame = self.rotateDir
+
+        #Tracks if the rotation has failed
+        failed = False
 
         center = np.asfarray(self.cubes[0].localPos)
 
@@ -171,81 +203,107 @@ class Piece:
             if (self.radRotated + mag) >= math.radians(90):
                 mag = math.radians(90) - self.radRotated
                 #Reset rotation counter and rotation status
-                self.radRotated = math.radians(0)
+                #self.radRotated = math.radians(0)
                 self.rotateDir = None
             else:
-                self.radRotated += mag
+                #self.radRotated += mag
+                pass
 
-            print("radians rotated:")
-            print(self.radRotated)
+            self.radRotated += mag
 
             angle = mag
-            axis = (0, -2, 0)
+            axis = self.rotateAxis
 
         elif self.rotateDir == "right":
             #If the rotation is almost complete, rotate the rest of the way
             if (self.radRotated + mag) >= math.radians(90):
                 mag = math.radians(90) - self.radRotated
                 #Reset rotation counter and rotation status
-                self.radRotated = math.radians(0)
+                #self.radRotated = math.radians(0)
                 self.rotateDir = None
             else:
-                self.radRotated += mag
+                #self.radRotated += mag
+                pass
 
-            print("magnitude")
-            print(mag)
+            self.radRotated += mag
 
-            angle = -mag
-            axis = (0, -2, 0)
+            angle = mag
+            axis = self.rotateAxis
 
         elif self.rotateDir == "down":
             #If the rotation is almost complete, rotate the rest of the way
             if (self.radRotated + mag) >= math.radians(90):
                 mag = math.radians(90) - self.radRotated
                 #Reset rotation counter and rotation status
-                self.radRotated = math.radians(0)
+                #self.radRotated = math.radians(0)
                 self.rotateDir = None
             else:
-                self.radRotated += mag
+                #self.radRotated += mag
+                pass
 
-            print("magnitude")
-            print(mag)
+            self.radRotated += mag
 
             angle = -mag
-            axis = (-2, 0, 0)
+            axis = self.rotateAxis
 
         rotation_matrix = axis_rotation_matrix(angle, axis)
 
         #Perform the rotation
         for cube in self.cubes:
-            #cube.localPos = np.rint(np.dot(cube.localPos - center, rotation_matrix)) + center
             cube.localPos = np.dot(cube.localPos - center, rotation_matrix) + center
             
             # checks if in bounds or colliding and if so reverts cube positions 
             if not self.CheckInBounds() or not checkCubeCol(self):
-                self.RevertCubePos(curLocalPositions)
-                break
+                print("collision detected, reverting rotation")
+                failed = True
+
+
+        if failed:
+                print("collision detected, reverting rotation")
+
+                #self.RevertCubePos(curLocalPositions)
+
+                #Revert piece back to its original orientation by reversing the current rotation
+                if rotateDirThisFrame == "down":
+                    self.Rotate(self.radRotated, self.rotateAxis)
+                else:
+                    print("reverting horiz rotation")
+                    self.Rotate(self.radRotated, (self.rotateAxis[0], -self.rotateAxis[1], self.rotateAxis[2]))
+
+                #Toggle the piece to stop rotating
+                self.rotateDir = None
+
 
     #Smooth Rotations
 
     # Rotation function for piece
     def Rotate(self, angle, axis):
-        curLocalPositions = [(0, 0, 0), (0, 0, 0), (0, 0, 0), (0, 0, 0)]
-        for i, cube in enumerate(self.cubes):
-            curPos = cube.GetCubePos()
-            curLocalPositions[i] = curPos
+        #curLocalPositions = [(0, 0, 0), (0, 0, 0), (0, 0, 0), (0, 0, 0)]
+        #for i, cube in enumerate(self.cubes):
+        #    curPos = cube.GetCubePos()
+        #    curLocalPositions[i] = curPos
 
         # Convert angle to radians
-        angle = math.radians(angle)
+        #angle = math.radians(angle)
+        angle = angle
         center = np.asfarray(self.cubes[0].localPos)
         rotation_matrix = axis_rotation_matrix(angle, axis)
 
-        # checks if cubes are in bounds before completing rotation
+        print("angle:")
+        print(angle)
+        print("axis:")
+        print(axis)
+
         for cube in self.cubes:
-            cube.localPos = np.rint(np.dot(cube.localPos - center, rotation_matrix)) + center
-            if not self.CheckInBounds() or not checkCubeCol(self):
-                self.RevertCubePos(curLocalPositions)
-                break
+            #cube.localPos = np.rint(np.dot(cube.localPos - center, rotation_matrix)) + center
+            cube.localPos = np.dot(cube.localPos - center, rotation_matrix) + center
+
+        # checks if cubes are in bounds before completing rotation
+        #for cube in self.cubes:
+        #    cube.localPos = np.rint(np.dot(cube.localPos - center, rotation_matrix)) + center
+        #    if not self.CheckInBounds() or not checkCubeCol(self):
+        #        self.RevertCubePos(curLocalPositions)
+        #        break
 
     # Check if all cubes of a piece are in bounds
     def CheckInBounds(self):
