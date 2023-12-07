@@ -248,13 +248,16 @@ def Update(deltaTime, pieces):
 
     # Rotate piece
     if rotateLeft:
-        _piece.Rotate(90, (0, -2, 0))
+        _piece.ToggleRotate("left")
+        #_piece.Rotate(90, (0, -2, 0))
         rotateLeft = False
     elif rotateRight:
-        _piece.Rotate(-90, (0, -2, 0))
+        _piece.ToggleRotate("right")
+        #_piece.Rotate(-90, (0, -2, 0))
         rotateRight = False
     elif rotateDown:
-        _piece.Rotate(-90, (-2, 0, 0))
+        _piece.ToggleRotate("down")
+        #_piece.Rotate(-90, (-2, 0, 0))
         rotateDown = False
 
     _piece.prevPosition = np.copy(_piece.position)
