@@ -234,7 +234,7 @@ class Cube:
         finally:
             shaders.glUseProgram(0)
     
-    def Render(self):  # Change these 2 values to adjust size
+    def Render(self):
         #m = glGetDouble(GL_MODELVIEW_MATRIX)
 
         glPushMatrix()
