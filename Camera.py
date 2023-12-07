@@ -63,7 +63,7 @@ def toggleCamMove(dirH, dirV):
                 camPosV += dirV
 
                 #TEST
-                print(camPosV)
+                #print(camPosV)
 
 
 

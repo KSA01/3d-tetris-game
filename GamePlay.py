@@ -9,10 +9,14 @@ import random
 import Pieces
 import UI
 
+import copy # for copying cubes to CubeList
+
 #Camera
 import Border
 import Camera
 #Camera
+
+score = 0 
 
 icons = (
     "Icons/IIcon.png",
@@ -38,8 +42,13 @@ def Init():
     camUp, camDown, camLeft, camRight = False, False, False, False
     #Camera
 
-    Pieces.Init()
     OnStart = True
+
+    Pieces.Init() # Calls to run Cube Init() through Pieces file
+    #Camera
+    Camera.Init()
+    #Camera
+
     moveUp, moveDown, moveLeft, moveRight, rotateLeft, rotateRight, rotateDown = False, False, False, False, False, False, False
 
 def ProcessEvent(event):
@@ -90,25 +99,39 @@ icon_idx = nextIndex
 
 _isGamePaused = False  # A new global variable to track the pause state
 
+# Function to update and display the score
+def update_score(points):
+    global score
+    score += points
+    print(f"Score: {score}")  # Display the score 
+
+#Change the value of appearing and disappearing for all cubes
+def ToggleVisible(list, appear, disappear):
+    for cube in list:
+        cube.appearing = appear
+        cube.disappearing = disappear
+
 def Pause():
     global _isGamePaused
     global _piece
 
     _isGamePaused = True
-    #TODO: When this function is called, trigger all cubes on screen to disappear (on final assignment)
+
     #Toggle current piece to disappear
     _piece.ToggleCubes(False, True)
+    # trigger all cubes on screen to disappear (on final assignment)
+    ToggleVisible(Pieces.CubeList, False, True)
 
 def Resume():
     global _isGamePaused
     global _piece
 
     _isGamePaused = False
-
-    #TODO: When this function is called, trigger all cubes on screen to appear (on final assignment)
+ 
     #Toggle current piece to appear
     _piece.ToggleCubes(True, False)
-
+    # trigger all cubes on screen to appear (on final assignment)
+    ToggleVisible(Pieces.CubeList, True, False)
 
 def Update(deltaTime, pieces):
     global _piece
@@ -124,11 +147,12 @@ def Update(deltaTime, pieces):
     global camUp, camDown, camLeft, camRight
     #Camera
 
-    _piece = pieces[index]
+    if pieces:
+        _piece = pieces[index]
 
     if OnStart:
         _piece.ResetCubePos()
-        updatePos = (0, 6, -2)
+        updatePos = (1, 12, -1)
         _piece.SetPos(updatePos)
         OnStart = False
 
@@ -136,113 +160,113 @@ def Update(deltaTime, pieces):
         #Toggle cubes of piece to fade in
         _piece.ToggleCubes(True, False)
 
+    # checks if bottom row is filled
+    if not Pieces.CheckForPoint():
+        for cube in Pieces.CubeList:
+            if cube.GetCubePos()[1] <= -4.9:
+                Pieces.CubeList.remove(cube)   # removes any cubes at bottom from cube list
+        for cube in Pieces.CubeList:
+            cube.MoveCubeDown() # sets all remaining cubes y position 2 down
+        update_score(1)
 
-    # Check if piece hits the bottom
+    # proof check if any cube are below bottom
+    for cube in Pieces.CubeList:
+        if cube.GetCubePos()[1] < -5.5:
+            Pieces.CubeList.remove(cube)
+
+    # keeps piece from moving into other cubes
+    if not Pieces.checkCubeCol(_piece):
+        _piece.position[0] = _piece.prevPosition[0]
+        _piece.position[2] = _piece.prevPosition[2]
+        # retains y value for next collision check purposes
+
+    # Check if piece hits the bottom or stacks
     move = np.asfarray([0, -2*deltaTime, 0])
-    if move[1] + _piece.GetPos()[1] <= -5:
 
-        #Update index to next index and grab a new next index
-        index = nextIndex
-        nextIndex = random.randint(0, 6)
+    if move[1] + _piece.GetPos()[1] < 12:
+        if move[1] + _piece.GetPos()[1] + _piece.cubes[0].GetCubePos()[1] <= -5.01 or \
+            move[1] + _piece.GetPos()[1] + _piece.cubes[1].GetCubePos()[1] <= -5.01 or \
+            move[1] + _piece.GetPos()[1] + _piece.cubes[2].GetCubePos()[1] <= -5.01 or \
+            move[1] + _piece.GetPos()[1] + _piece.cubes[3].GetCubePos()[1] <= -5.01 or \
+            not Pieces.checkCubeCol(_piece):
 
-        #Set the next piece display
-        icon_idx = nextIndex
+            # if y value is now colliding after reverting x and z positions
+            if not Pieces.checkCubeCol(_piece):
+                _piece.position = _piece.prevPosition
+                _piece.position[1] = np.ceil(_piece.prevPosition[1])
+                if (_piece.position[1] % 2) == 0:
+                    _piece.position[1] -= 1
 
-        OnStart = True
-        move[1] += 24
+            #Update index to next index and grab a new next index
+            index = nextIndex
+            nextIndex = random.randint(0, 6)
 
+            #Set the next piece display
+            icon_idx = nextIndex
+
+            # Adds cubes to a seperate list to keep in place at bottom
+            for cube in _piece.cubes:
+                staticCube = copy.deepcopy(cube)
+                staticCube.SetCubePos(cube.GetCubePos() + np.rint(_piece.GetPos()))
+                Pieces.freezeCubes(staticCube)
+
+            OnStart = True
+            move[1] += 24
+
+    # Had to comment out to get cubes to freeze
     #Check if piece is close to bottom. If so, toggle cubes to fade
-    if move[1] + _piece.GetPos()[1] <= -4:
+    #if move[1] + _piece.GetPos()[1] <= -8: # temporary to get cubes to stack at bottom
         #Toggle cubes of piece to fade out
-        _piece.ToggleCubes(False, True)
-
-
-    #Camera-Relative Movement Update
-    #BUG: Need proper out of bounds checks, movement doesn't always work after camera turns
-
+        #_piece.ToggleCubes(False, True)
+        
     #Get the axis currently facing camera
     if moveUp or moveDown or moveLeft or moveRight:
         curSide = Camera.getCurSide()
-        print(curSide)
+        #print(curSide)
 
-    # Check if piece is not at z limit then move
-    if _piece.GetPos()[2] >= -4:
-        if moveUp:
-            if curSide == 'z':
-                move[2] += -2
-            elif curSide == 'x':
-                move[0] += 2
-            elif curSide == '-z':
-                move[2] += 2
-            elif curSide == '-x':
-                move[0] += -2
-            moveUp = False
-    if _piece.GetPos()[2] <= 1.5:
-        if moveDown:
-            if curSide == 'z':
-                move[2] += 2
-            elif curSide == 'x':
-                move[0] += -2
-            elif curSide == '-z':
-                move[2] += -2
-            elif curSide == '-x':
-                move[0] += 2
-            moveDown = False
-
-    # Check if piece is not at x limit then move
-    if _piece.GetPos()[0] >= -3:
-        if moveLeft:
-            if curSide == 'z':
-                move[0] += -2
-            elif curSide == 'x':
-                move[2] += -2
-            elif curSide == '-z':
-                move[0] += 2
-            elif curSide == '-x':
-                move[2] += 2
-            moveLeft = False
-    if _piece.GetPos()[0] <= 3:
-        if moveRight:
-            if curSide == 'z':
-                move[0] += 2
-            elif curSide == 'x':
-                move[2] += 2
-            elif curSide == '-z':
-                move[0] += -2
-            elif curSide == '-x':
-                move[2] += -2
-            moveRight = False   
-
-
-
-
-
-    #OLD CODE, NOT CAMERA-RELATIVE MOVEMENT (kept just in case)
-    # Check if piece is not at z limit then move
-    #if _piece.GetPos()[2] >= -4:
-    #    if moveUp:
-    #        move[2] += -2
-    #        moveUp = False
-    #if _piece.GetPos()[2] <= 1.5:
-    #    if moveDown:
-    #        move[2] += 2
-    #        moveDown = False
-
-    # Check if piece is not at x limit then move
-    #if _piece.GetPos()[0] >= -3:
-    #    if moveLeft:
-    #        move[0] += -2
-    #        moveLeft = False
-    #if _piece.GetPos()[0] <= 3:
-    #    if moveRight:
-    #        move[0] += 2
-    #        moveRight = False
-
-
-
-
-
-
+    # Key bindings
+    # Move piece on z axis
+    if moveUp:
+        if curSide == 'z':
+            move[2] += -2
+        elif curSide == 'x':
+            move[0] += 2
+        elif curSide == '-z':
+            move[2] += 2
+        elif curSide == '-x':
+            move[0] += -2
+        moveUp = False
+    if moveDown:
+        if curSide == 'z':
+            move[2] += 2
+        elif curSide == 'x':
+            move[0] += -2
+        elif curSide == '-z':
+            move[2] += -2
+        elif curSide == '-x':
+            move[0] += 2
+        moveDown = False
+    # Move piece on x axis
+    if moveLeft:
+        if curSide == 'z':
+            move[0] += -2
+        elif curSide == 'x':
+            move[2] += -2
+        elif curSide == '-z':
+            move[0] += 2
+        elif curSide == '-x':
+            move[2] += 2
+        moveLeft = False
+    if moveRight:
+        if curSide == 'z':
+            move[0] += 2
+        elif curSide == 'x':
+            move[2] += 2
+        elif curSide == '-z':
+            move[0] += -2
+        elif curSide == '-x':
+            move[2] += -2
+        moveRight = False
 
     # Rotate piece
     if rotateLeft:
@@ -258,7 +282,13 @@ def Update(deltaTime, pieces):
         #_piece.Rotate(-90, (-2, 0, 0))
         rotateDown = False
 
+    _piece.prevPosition = np.copy(_piece.position)
+
     _piece.Update(deltaTime, move, _isGamePaused)
+
+    if Pieces.CubeList:
+        for cube in Pieces.CubeList:
+            cube.Update(deltaTime)
 
     #Camera
     if camUp:
@@ -283,10 +313,10 @@ def Update(deltaTime, pieces):
         camRight = False
     #Camera
 
-
 def Render():
     global _piece
     global icon_idx
+    global score
 
     # screen size
     width, height = 640, 750
@@ -301,10 +331,13 @@ def Render():
     glLoadIdentity()
     
     #Render the image
-    UI.render_image(70, 50, 100, 100, image_path=icons[icon_idx])
+    UI.render_image(50, 50, 100, 100, image_path=icons[icon_idx])
 
     # Render the text
-    UI.render_text("next", 50, 10, 48)
+    UI.render_text("next", 40, 10, 28)
+
+    # Render the score
+    UI.render_text(f"Score: {str(score)}", 475, 10, 16)
 
     # Restore the previous projection and modelview matrices
     glPopMatrix()
@@ -313,3 +346,7 @@ def Render():
     glMatrixMode(GL_MODELVIEW)
 
     _piece.Render()
+    
+    if Pieces.CubeList:
+        for cube in Pieces.CubeList:
+            cube.Render()

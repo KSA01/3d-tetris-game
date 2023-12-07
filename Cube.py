@@ -3,7 +3,6 @@
 from OpenGL.GL import *
 import numpy as np
 from math import *
-import random
 
 from OpenGL.arrays import vbo
 from OpenGL.GL import shaders
@@ -42,6 +41,12 @@ _verts = np.float32([(1, -1, -1, 0, 0, -1, 0, 0),   # first - 8 vertices x 3
                     (-1, -1, -1, 0, -1, 0, 1, 1),
                     (-1, -1, 1, 0, -1, 0, 0, 1)
                     ])
+
+borders = (
+    (-4, 4),
+    (-5, 30),
+    (-4, 4)
+)
 
 def Init():
     global _shader
@@ -135,7 +140,19 @@ class Cube:
 
     def SetCubePos(self, newPos):
         self.localPos = newPos
+        
+    def MoveCubeDown(self):
+        self.localPos[1] -= 2
 
+    # Check if cube is in bounds
+    def CheckInBounds(self, piece):
+        for i in range(3): # for each axis (x,y,z)
+            pos = np.round(self.GetCubePos()) + np.round(piece.GetPos())
+            # checks if each axis value is between border limits for that axis
+            if pos[i] <= borders[i][0] or pos[i] >= borders[i][1]:
+                return False  # Cube is out of bounds for at least one dimension
+
+        return True  # All cubes are within bounds for all dimensions
 
     #NEW
     #Fade in a cube over 1/6 of a second
@@ -164,7 +181,7 @@ class Cube:
                 self.disappearing = False
                 #print("Fully transparent")
 
-    def Update(self, deltaTime, move):
+    def Update(self, deltaTime):
         self.ang += 50.0 * deltaTime
         #self.localPos += move #This was commented out on mine #BUG
 
@@ -220,29 +237,13 @@ class Cube:
         finally:
             shaders.glUseProgram(0)
     
-
-    def Render(self, scale_factor=0.75, block_spacing=0.25):  # Change these 2 values to adjust size
+    def Render(self):
         #m = glGetDouble(GL_MODELVIEW_MATRIX)
 
         glPushMatrix()
-        #glTranslatef(*self.localPos)     # Translates the local position of each cube from pieces.py
-        glScalef(scale_factor, scale_factor, scale_factor)
-        adjusted_translation = [pos * (scale_factor + block_spacing) for pos in self.localPos]
-        glTranslatef(*adjusted_translation)
+        glTranslatef(*self.localPos)     # Translates the local position of each cube from pieces.py
         #glRotatef(self.ang, *self.axis)
         self._DrawBlock()
         glPopMatrix()
 
         #glLoadMatrixf(m)
-
-# quaternians rotation matrix 
-def axis_rotation_matrix(angle, axis):
-    axis = np.asarray(axis)
-    axis = axis / np.sqrt(np.dot(axis, axis))
-    q = np.array([np.cos(angle / 2.0), *(-axis * np.sin(angle / 2.0))])
-    rotation_matrix = np.array([
-        [1 - 2 * (q[2]**2 + q[3]**2), 2 * (q[1] * q[2] - q[0] * q[3]), 2 * (q[1] * q[3] + q[0] * q[2])],
-        [2 * (q[1] * q[2] + q[0] * q[3]), 1 - 2 * (q[1]**2 + q[3]**2), 2 * (q[2] * q[3] - q[0] * q[1])],
-        [2 * (q[1] * q[3] - q[0] * q[2]), 2 * (q[2] * q[3] + q[0] * q[1]), 1 - 2 * (q[1]**2 + q[2]**2)],
-    ])
-    return rotation_matrix
