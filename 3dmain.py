@@ -76,9 +76,9 @@ def Update(deltaTime):
         if event.type == pygame.KEYDOWN and event.key == pygame.K_ESCAPE: #Check if ESC key is pressed
             _isPaused = not _isPaused #Toggle the pause state
             if _isPaused:
-                GamePlay.Pause(tetrisPieces) # Call a new function to handle pause in GamePlay
+                GamePlay.Pause() # Call a new function to handle pause in GamePlay
             else:
-                GamePlay.Resume(tetrisPieces) # Call a new function to handle resume in GamePlay
+                GamePlay.Resume() # Call a new function to handle resume in GamePlay
             continue
         if _isPaused:
             continue # Skip the rest of the loop if the game is paused

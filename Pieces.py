@@ -53,6 +53,13 @@ class Piece:
     def __init__(self, position, color, name, filepath):
         #Init()
 
+        #Smooth rotations
+        #Tracks which direction the piece is currently rotating (left, right, down)
+        self.rotateDir = None
+        #Tracks how many degrees have been rotated in current rotation
+        self.radRotated = math.radians(0)
+        #Smooth rotations
+
         self.name = name
         if self.name == "I":
             self.localPositions = [(0, 0, 0), (0, 0, -2), (0, 0, -4), (0, 0, 2)]
@@ -110,7 +117,81 @@ class Piece:
             cube.appearing = appear
             cube.disappearing = disappear
 
-        
+
+    #Smooth Rotations
+    #Takes a direction (left, right, down) and toggles the piece to rotate that way over 1/6s
+    def ToggleRotate(self, dir):
+        #If the piece is not currently rotating, toggle it to rotate in the given direction
+        if self.rotateDir == None:
+            self.rotateDir = dir
+
+        print("Rotation status:")
+        print(self.rotateDir)
+
+
+    def RotateSmooth(self, deltaTime):
+        center = np.asfarray(self.cubes[0].localPos)
+
+        #The magnitude of the angle of rotation (in radians)
+        mag = math.radians(90 * 6 * deltaTime)
+
+        if self.rotateDir == "left":
+            #If the rotation is almost complete, rotate the rest of the way
+            if (self.radRotated + mag) >= math.radians(90):
+                mag = math.radians(90) - self.radRotated
+                #Reset rotation counter and rotation status
+                self.radRotated = math.radians(0)
+                self.rotateDir = None
+            else:
+                self.radRotated += mag
+
+            print("radians rotated:")
+            print(self.radRotated)
+
+            angle = mag
+            axis = (0, -2, 0)
+
+        elif self.rotateDir == "right":
+            #If the rotation is almost complete, rotate the rest of the way
+            if (self.radRotated + mag) >= math.radians(90):
+                mag = math.radians(90) - self.radRotated
+                #Reset rotation counter and rotation status
+                self.radRotated = math.radians(0)
+                self.rotateDir = None
+            else:
+                self.radRotated += mag
+
+            print("magnitude")
+            print(mag)
+
+            angle = -mag
+            axis = (0, -2, 0)
+
+        elif self.rotateDir == "down":
+            #If the rotation is almost complete, rotate the rest of the way
+            if (self.radRotated + mag) >= math.radians(90):
+                mag = math.radians(90) - self.radRotated
+                #Reset rotation counter and rotation status
+                self.radRotated = math.radians(0)
+                self.rotateDir = None
+            else:
+                self.radRotated += mag
+
+            print("magnitude")
+            print(mag)
+
+            angle = -mag
+            axis = (-2, 0, 0)
+
+        rotation_matrix = axis_rotation_matrix(angle, axis)
+
+        #Perform the rotation
+        for cube in self.cubes:
+            #cube.localPos = np.rint(np.dot(cube.localPos - center, rotation_matrix)) + center
+            cube.localPos = np.dot(cube.localPos - center, rotation_matrix) + center
+
+    #Smooth Rotations
+
     # Rotation function for piece
     def Rotate(self, angle, axis):
         # Convert angle to radians
@@ -133,6 +214,11 @@ class Piece:
         #TEST: Update Cubes within piece regardless of pause status
         for cube in self.cubes:
             cube.Update(deltaTime, move)
+
+        #Smooth Rotations
+        if self.rotateDir != None:
+            self.RotateSmooth(deltaTime)
+        #Smooth Rotations
 
 
 
