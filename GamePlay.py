@@ -16,6 +16,8 @@ import Border
 import Camera
 #Camera
 
+score = 0 
+
 icons = (
     "Icons/IIcon.png",
     "Icons/JIcon.png",
@@ -96,6 +98,12 @@ nextIndex = random.randint(0, 6)
 icon_idx = nextIndex
 
 _isGamePaused = False  # A new global variable to track the pause state
+
+# Function to update and display the score
+def update_score(points):
+    global score
+    score += points
+    print(f"Score: {score}")  # Display the score 
 
 #Change the value of appearing and disappearing for all cubes
 def ToggleVisible(list, appear, disappear):
@@ -190,6 +198,8 @@ def Update(deltaTime, pieces):
 
             OnStart = True
             move[1] += 24
+
+            update_score(1)
 
     # Had to comment out to get cubes to freeze
     #Check if piece is close to bottom. If so, toggle cubes to fade
@@ -294,6 +304,7 @@ def Update(deltaTime, pieces):
 def Render():
     global _piece
     global icon_idx
+    global score
 
     # screen size
     width, height = 640, 750
@@ -312,6 +323,10 @@ def Render():
 
     # Render the text
     UI.render_text("next", 50, 10, 48)
+
+    # Render the score
+    print(score)
+    UI.render_text(f"Score 0 {str(score)}", 450, 10, 36)
 
     # Restore the previous projection and modelview matrices
     glPopMatrix()
