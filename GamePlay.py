@@ -97,7 +97,7 @@ icon_idx = nextIndex
 
 _isGamePaused = False  # A new global variable to track the pause state
 
-#Change the value of appearing and disappearing for all cubes within piece (pass in a boolean for appear and disappear)
+#Change the value of appearing and disappearing for all cubes
 def ToggleVisible(list, appear, disappear):
     for cube in list:
         cube.appearing = appear
@@ -108,9 +108,10 @@ def Pause():
     global _piece
 
     _isGamePaused = True
-    #TODO: When this function is called, trigger all cubes on screen to disappear (on final assignment)
+
     #Toggle current piece to disappear
     _piece.ToggleCubes(False, True)
+    # trigger all cubes on screen to disappear (on final assignment)
     ToggleVisible(Pieces.CubeList, False, True)
 
 def Resume():
@@ -118,10 +119,10 @@ def Resume():
     global _piece
 
     _isGamePaused = False
-
-    #TODO: When this function is called, trigger all cubes on screen to appear (on final assignment)
+ 
     #Toggle current piece to appear
     _piece.ToggleCubes(True, False)
+    # trigger all cubes on screen to appear (on final assignment)
     ToggleVisible(Pieces.CubeList, True, False)
 
 def Update(deltaTime, pieces):
@@ -150,9 +151,14 @@ def Update(deltaTime, pieces):
         #NEW
         #Toggle cubes of piece to fade in
         _piece.ToggleCubes(True, False)
+    
+    # keeps piece from moving into other cubes
+    if not Pieces.checkCubeCol(_piece):
+        _piece.position[0] = _piece.prevPosition[0]
+        _piece.position[2] = _piece.prevPosition[2]
+        # retains y value for next collision check purposes
 
-
-    # Check if piece hits the bottom
+    # Check if piece hits the bottom or stacks
     move = np.asfarray([0, -2*deltaTime, 0])
 
     if move[1] + _piece.GetPos()[1] <= 8:
@@ -162,9 +168,12 @@ def Update(deltaTime, pieces):
             move[1] + _piece.GetPos()[1] + _piece.cubes[3].GetCubePos()[1] <= -5.01 or \
             not Pieces.checkCubeCol(_piece):
 
+            # if y value is now colliding after reverting x and z positions
             if not Pieces.checkCubeCol(_piece):
                 _piece.position = _piece.prevPosition
                 _piece.position[1] = np.ceil(_piece.prevPosition[1])
+                if (_piece.position[1] % 2) == 0:
+                    _piece.position[1] -= 1
 
             #Update index to next index and grab a new next index
             index = nextIndex
@@ -182,18 +191,16 @@ def Update(deltaTime, pieces):
             OnStart = True
             move[1] += 24
 
+    # Had to comment out to get cubes to freeze
     #Check if piece is close to bottom. If so, toggle cubes to fade
-    if move[1] + _piece.GetPos()[1] <= -8: # temporary to get cubes to stack at bottom
+    #if move[1] + _piece.GetPos()[1] <= -8: # temporary to get cubes to stack at bottom
         #Toggle cubes of piece to fade out
-        _piece.ToggleCubes(False, True)
-
-    #Camera-Relative Movement Update
-    #BUG: Need proper out of bounds checks, movement doesn't always work after camera turns
-
+        #_piece.ToggleCubes(False, True)
+        
     #Get the axis currently facing camera
     if moveUp or moveDown or moveLeft or moveRight:
         curSide = Camera.getCurSide()
-        print(curSide)
+        #print(curSide)
 
     # Key bindings
     # Move piece on z axis

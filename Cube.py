@@ -3,7 +3,6 @@
 from OpenGL.GL import *
 import numpy as np
 from math import *
-import random
 
 from OpenGL.arrays import vbo
 from OpenGL.GL import shaders

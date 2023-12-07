@@ -3,11 +3,8 @@
 from OpenGL.GL import *
 import numpy as np
 import math
-import random
 from Cube import *
 from Texture import Texture
-
-import copy # for copying cubes to CubeList
 
 #[r,g,b,a]
 colors = (

@@ -11,7 +11,6 @@ import Cube
 import Pieces
 import Border
 import GamePlay
-import UI
 import GameOver
 
 #Camera
@@ -104,7 +103,7 @@ def Render():
     if not Pieces.CheckForCeil():  # Checks if any cubes have hit the ceiling
         GamePlay.Pause()
         GameOver.Render()
-        
+
     #NEW
     #Render Border first so transparency works correctly
     Border.Render()
