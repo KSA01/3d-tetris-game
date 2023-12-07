@@ -9,7 +9,7 @@ from OpenGL.GLU import *
 #UI
 
 # Font settings for rendering text
-font_path = "font/Freedom-10eM.ttf"  # Replace with your font file path
+font_path = "font/Beyonders.ttf"  # Replace with your font file path
 
 def render_text(text, x, y, font_size):
     """ Renders text onto the screen """

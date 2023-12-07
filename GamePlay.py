@@ -331,13 +331,13 @@ def Render():
     glLoadIdentity()
     
     #Render the image
-    UI.render_image(70, 50, 100, 100, image_path=icons[icon_idx])
+    UI.render_image(50, 50, 100, 100, image_path=icons[icon_idx])
 
     # Render the text
-    UI.render_text("next", 50, 10, 48)
+    UI.render_text("next", 40, 10, 28)
 
     # Render the score
-    UI.render_text(f"Score 0 {str(score)}", 450, 10, 36)
+    UI.render_text(f"Score: {str(score)}", 475, 10, 16)
 
     # Restore the previous projection and modelview matrices
     glPopMatrix()
