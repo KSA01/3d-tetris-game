@@ -10,6 +10,7 @@ from Cube import * #Cube, Init, axis_rotation_matrix
 #import GamePlay
 
 from Texture import Texture
+import Camera
 
 #[r,g,b,a]
 colors = (
@@ -58,7 +59,10 @@ class Piece:
         self.rotateDir = None
         #Tracks how many degrees have been rotated in current rotation
         self.radRotated = math.radians(0)
-        #Smooth rotations
+
+        #Relative rotations
+        #The axis to rotate the pieces on (horizontal by default, changes when rotation is toggled)
+        self.rotateAxis = (0, -2, 0)
 
         self.name = name
         if self.name == "I":
@@ -91,7 +95,6 @@ class Piece:
         self.transforms = [np.eye(4) for _ in range(cubeCount)]
 
 
-        #TEST
         #Set cubes within piece to be fully transparent on init
         for cube in self.cubes:
             cube.color[3] = 0
@@ -125,10 +128,27 @@ class Piece:
         if self.rotateDir == None:
             self.rotateDir = dir
 
-        print("Rotation status:")
-        print(self.rotateDir)
+            #Check axis facing the camera (for relative piece rotations)
+            curSide = Camera.getCurSide()
+            
+            #If rotating left or right, rotate around y axis
+            if self.rotateDir == "left":
+                self.rotateAxis = (0, -2, 0)
+            elif self.rotateDir == "right":
+                self.rotateAxis = (0, 2, 0)
+            #If rotating down, rotate around x or z axis
+            elif self.rotateDir == "down":
+                if curSide == 'z':
+                    self.rotateAxis = (-2, 0, 0)
+                elif curSide == '-z':
+                    self.rotateAxis = (2, 0, 0)
+                elif curSide == 'x':
+                    self.rotateAxis = (0, 0, -2)
+                elif curSide == '-x':
+                    self.rotateAxis = (0, 0, 2)
 
 
+    #Rotates a piece by a fraction of a 90 degree angle (for smooth rotations)
     def RotateSmooth(self, deltaTime):
         center = np.asfarray(self.cubes[0].localPos)
 
@@ -145,11 +165,9 @@ class Piece:
             else:
                 self.radRotated += mag
 
-            print("radians rotated:")
-            print(self.radRotated)
-
             angle = mag
-            axis = (0, -2, 0)
+            
+            axis = self.rotateAxis
 
         elif self.rotateDir == "right":
             #If the rotation is almost complete, rotate the rest of the way
@@ -161,11 +179,9 @@ class Piece:
             else:
                 self.radRotated += mag
 
-            print("magnitude")
-            print(mag)
+            angle = mag
 
-            angle = -mag
-            axis = (0, -2, 0)
+            axis = self.rotateAxis
 
         elif self.rotateDir == "down":
             #If the rotation is almost complete, rotate the rest of the way
@@ -177,22 +193,17 @@ class Piece:
             else:
                 self.radRotated += mag
 
-            print("magnitude")
-            print(mag)
-
             angle = -mag
-            axis = (-2, 0, 0)
+            axis = self.rotateAxis
 
         rotation_matrix = axis_rotation_matrix(angle, axis)
 
         #Perform the rotation
         for cube in self.cubes:
-            #cube.localPos = np.rint(np.dot(cube.localPos - center, rotation_matrix)) + center
             cube.localPos = np.dot(cube.localPos - center, rotation_matrix) + center
 
-    #Smooth Rotations
 
-    # Rotation function for piece
+    # Rotates a piece in one frame
     def Rotate(self, angle, axis):
         # Convert angle to radians
         angle = math.radians(angle)
@@ -203,11 +214,9 @@ class Piece:
             cube.localPos = np.rint(np.dot(cube.localPos - center, rotation_matrix)) + center
 
     #NOTE: Fading in/out can no longer be paused (because this update is no longer locked behind pause status)
-    def Update(self, deltaTime, move, paused): #NEW: Takes pause status to gatekeep all update actions except fade
-        #NEW
+    def Update(self, deltaTime, move, paused): #Takes pause status to gatekeep all update actions except ongoing fade and rotate
         #If the game is paused, don't update position
         if not paused:
-        #NEW
             self.ang += 50.0 * deltaTime
             self.position += move
 
@@ -218,7 +227,6 @@ class Piece:
         #Smooth Rotations
         if self.rotateDir != None:
             self.RotateSmooth(deltaTime)
-        #Smooth Rotations
 
 
 

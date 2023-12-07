@@ -43,9 +43,8 @@ Cube.Init()
 #cube = SlowCube()
 GamePlay.Init()
 
-#ALFREDO
+
 _isPaused = False
-#ALFREDO
 
 #UI
 triangle = SlowTriangle()
@@ -62,17 +61,15 @@ for piece in tetrisPieces:
 
 #Camera
 Camera.Init()
-#Camera
 
 def Update(deltaTime):
-    #ALFREDO
+
     global _isPaused #Access the global pause variable
-    #ALFREDO
 
     for event in pygame.event.get():
         if event.type == pygame.QUIT:
             return False
-        #ALFREDO
+        
         if event.type == pygame.KEYDOWN and event.key == pygame.K_ESCAPE: #Check if ESC key is pressed
             _isPaused = not _isPaused #Toggle the pause state
             if _isPaused:
@@ -82,29 +79,14 @@ def Update(deltaTime):
             continue
         if _isPaused:
             continue # Skip the rest of the loop if the game is paused
-        #ALFREDO
 
         if GamePlay.ProcessEvent(event):
             continue
-
-    #GamePlay.Update(deltaTime)
-
-    #cube.Update(deltaTime)
-    #for piece in tetrisPieces:
-        #piece.Update(deltaTime)
-    
-    #BOOKMARK: This is where game loop checks for pause
-    #ALFREDO
-    #if not _isPaused: # Only update game state if not paused
-    #ALFREDO
-        #GamePlay.Update(deltaTime, tetrisPieces)
-
     
     GamePlay.Update(deltaTime, tetrisPieces)
     
     #Camera
     Camera.Update(deltaTime)
-    #Camera
 
 
     #UI
@@ -116,7 +98,6 @@ def Update(deltaTime):
 def Render():
     glClear(GL_COLOR_BUFFER_BIT|GL_DEPTH_BUFFER_BIT)
 
-    #NEW
     #Render Border first so transparency works correctly
     Border.Render()
 
