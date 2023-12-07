@@ -140,6 +140,9 @@ class Cube:
 
     def SetCubePos(self, newPos):
         self.localPos = newPos
+        
+    def MoveCubeDown(self):
+        self.localPos[1] -= 2
 
     # Check if cube is in bounds
     def CheckInBounds(self, piece):

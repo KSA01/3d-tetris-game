@@ -73,6 +73,20 @@ def CheckForCeil():
     
     return True
 
+#Alfredo
+#checks if bottom row is filled
+def CheckForPoint():
+    count = 0   # counter for cubes at bottom
+    for cube in CubeList:
+        if cube.GetCubePos()[1] <= -4.9:  # bottom y coord is -5
+            count += 1
+    if count >= 16:  # if there are this many cubes at bottom
+        count = 0
+        return False
+
+    return True
+#Alfredo
+
 class Piece:
     def __init__(self, position, color, name, filepath):
         #Smooth rotations

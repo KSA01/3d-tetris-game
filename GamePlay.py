@@ -159,7 +159,21 @@ def Update(deltaTime, pieces):
         #NEW
         #Toggle cubes of piece to fade in
         _piece.ToggleCubes(True, False)
-    
+
+    # checks if bottom row is filled
+    if not Pieces.CheckForPoint():
+        for cube in Pieces.CubeList:
+            if cube.GetCubePos()[1] <= -4.9:
+                Pieces.CubeList.remove(cube)   # removes any cubes at bottom from cube list
+        for cube in Pieces.CubeList:
+            cube.MoveCubeDown() # sets all remaining cubes y position 2 down
+        update_score(1)
+
+    # proof check if any cube are below bottom
+    for cube in Pieces.CubeList:
+        if cube.GetCubePos()[1] < -5.5:
+            Pieces.CubeList.remove(cube)
+
     # keeps piece from moving into other cubes
     if not Pieces.checkCubeCol(_piece):
         _piece.position[0] = _piece.prevPosition[0]
@@ -198,8 +212,6 @@ def Update(deltaTime, pieces):
 
             OnStart = True
             move[1] += 24
-
-            update_score(1)
 
     # Had to comment out to get cubes to freeze
     #Check if piece is close to bottom. If so, toggle cubes to fade
