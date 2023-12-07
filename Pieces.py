@@ -155,6 +155,12 @@ class Piece:
 
 
     def RotateSmooth(self, deltaTime):
+        # defines cur/prev pos in case to revert
+        curLocalPositions = [(0, 0, 0), (0, 0, 0), (0, 0, 0), (0, 0, 0)]
+        for i, cube in enumerate(self.cubes):
+            curPos = cube.GetCubePos()
+            curLocalPositions[i] = np.rint(curPos)
+
         center = np.asfarray(self.cubes[0].localPos)
 
         #The magnitude of the angle of rotation (in radians)
@@ -214,6 +220,11 @@ class Piece:
         for cube in self.cubes:
             #cube.localPos = np.rint(np.dot(cube.localPos - center, rotation_matrix)) + center
             cube.localPos = np.dot(cube.localPos - center, rotation_matrix) + center
+            
+            # checks if in bounds or colliding and if so reverts cube positions 
+            if not self.CheckInBounds() or not checkCubeCol(self):
+                self.RevertCubePos(curLocalPositions)
+                break
 
     #Smooth Rotations
 
