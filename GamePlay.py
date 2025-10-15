@@ -160,10 +160,14 @@ def Update(deltaTime, pieces):
         #Toggle cubes of piece to fade in
         _piece.ToggleCubes(True, False)
 
-    # Clear any full layers of static cubes and award points per cleared layer
-    cleared_layers = Pieces.ClearFullLayers()
-    if cleared_layers > 0:
-        update_score(cleared_layers)
+    # Clear filled structures each frame; prefer full layers, then full rows, then bottom fallback
+    cleared = Pieces.ClearFullLayers()
+    if cleared == 0:
+        cleared = Pieces.ClearFullRows()
+    if cleared == 0:
+        cleared = Pieces.ClearBottomRowFallback()
+    if cleared > 0:
+        update_score(cleared)
 
     # proof check if any cube are below bottom
     for cube in Pieces.CubeList:
@@ -208,10 +212,14 @@ def Update(deltaTime, pieces):
                 staticCube.SetCubePos(cube.GetCubePos() + np.rint(_piece.GetPos()))
                 Pieces.freezeCubes(staticCube)
 
-            # After freezing, clear any full layers formed and update score
-            cleared_layers = Pieces.ClearFullLayers()
-            if cleared_layers > 0:
-                update_score(cleared_layers)
+            # After freezing, clear any full layers formed (or bottom fallback) and update score
+            cleared = Pieces.ClearFullLayers()
+            if cleared == 0:
+                cleared = Pieces.ClearFullRows()
+            if cleared == 0:
+                cleared = Pieces.ClearBottomRowFallback()
+            if cleared > 0:
+                update_score(cleared)
 
             OnStart = True
             move[1] += 24

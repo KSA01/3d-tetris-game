@@ -93,6 +93,11 @@ def ClearFullLayers():
     if not CubeList:
         return 0
 
+    # Compute how many cells constitute a full layer based on borders and 2-unit grid spacing
+    cells_per_x = int((borders[0][1] - borders[0][0]) // 2)
+    cells_per_z = int((borders[2][1] - borders[2][0]) // 2)
+    full_layer_size = cells_per_x * cells_per_z
+
     # Map each Y level to set of occupied (x, z) grid positions
     layer_to_positions = {}
 
@@ -105,7 +110,7 @@ def ClearFullLayers():
         x = int(pos[0])
         z = int(pos[2])
 
-        # Only consider cubes strictly inside the X/Z borders
+        # Consider only cells within the inner play area
         if x <= x_min or x >= x_max or z <= z_min or z >= z_max:
             continue
 
@@ -113,8 +118,8 @@ def ClearFullLayers():
             layer_to_positions[y] = set()
         layer_to_positions[y].add((x, z))
 
-    # A full 8x8 layer has 64 unique (x, z) positions
-    full_layers = sorted([y for y, positions in layer_to_positions.items() if len(positions) >= 64])
+    # Identify any full layers
+    full_layers = sorted([y for y, positions in layer_to_positions.items() if len(positions) >= full_layer_size])
 
     if not full_layers:
         return 0
@@ -128,17 +133,113 @@ def ClearFullLayers():
             continue
         remaining_cubes.append(cube)
 
-    # For each remaining cube, drop it down by 2 units for each cleared layer below it
+    # Drop remaining cubes by 2 units for each cleared layer below their Y
     for cube in remaining_cubes:
         y = int(np.rint(cube.GetCubePos()[1]))
         drop_layers_below = sum(1 for layer in full_layers if y > layer)
         if drop_layers_below > 0:
             cube.SetCubePos(cube.GetCubePos() + np.asfarray([0, -2 * drop_layers_below, 0]))
 
-    # Replace contents of CubeList in-place
     CubeList[:] = remaining_cubes
 
     return len(full_layers)
+
+# Fallback: handle bottom row clearing with tolerant thresholding
+def ClearBottomRowFallback():
+    if not CubeList:
+        return 0
+
+    # Compute full layer size from borders
+    cells_per_x = int((borders[0][1] - borders[0][0]) // 2)
+    cells_per_z = int((borders[2][1] - borders[2][0]) // 2)
+    full_layer_size = cells_per_x * cells_per_z
+
+    bottom_y_threshold = -4.9  # Treat anything at/just below -5 as bottom
+
+    bottom_cubes = [cube for cube in CubeList if cube.GetCubePos()[1] <= bottom_y_threshold]
+    if len(bottom_cubes) < full_layer_size:
+        return 0
+
+    # Remove bottom cubes
+    survivors = [cube for cube in CubeList if cube.GetCubePos()[1] > bottom_y_threshold]
+
+    # Move survivors down by 2
+    for cube in survivors:
+        cube.MoveCubeDown()
+
+    CubeList[:] = survivors
+    return 1
+
+# Clear any fully filled rows inside the border at any Y (both X-rows and Z-rows)
+def ClearFullRows():
+    if not CubeList:
+        return 0
+
+    # Determine grid dimensions (number of cells per axis)
+    cells_per_x = int((borders[0][1] - borders[0][0]) // 2)
+    cells_per_z = int((borders[2][1] - borders[2][0]) // 2)
+
+    x_min, x_max = borders[0]
+    z_min, z_max = borders[2]
+
+    # Build occupancy maps
+    # For rows along X (fixed y and z, varying x)
+    occ_rows_x = {}
+    # For rows along Z (fixed y and x, varying z)
+    occ_rows_z = {}
+
+    for cube in CubeList:
+        pos = np.rint(cube.GetCubePos())
+        y = int(pos[1])
+        x = int(pos[0])
+        z = int(pos[2])
+
+        # Only consider cells strictly inside in X/Z
+        if x <= x_min or x >= x_max or z <= z_min or z >= z_max:
+            continue
+
+        key_x = (y, z)
+        key_z = (y, x)
+        occ_rows_x.setdefault(key_x, set()).add(x)
+        occ_rows_z.setdefault(key_z, set()).add(z)
+
+    # Identify full rows
+    full_rows_x = [key for key, xs in occ_rows_x.items() if len(xs) >= cells_per_x]
+    full_rows_z = [key for key, zs in occ_rows_z.items() if len(zs) >= cells_per_z]
+
+    if not full_rows_x and not full_rows_z:
+        return 0
+
+    # Compute which cubes to remove
+    rows_x_set = set(full_rows_x)
+    rows_z_set = set(full_rows_z)
+
+    survivors = []
+    removed_count = 0
+    for cube in CubeList:
+        pos = np.rint(cube.GetCubePos())
+        y = int(pos[1])
+        x = int(pos[0])
+        z = int(pos[2])
+
+        remove = ((y, z) in rows_x_set) or ((y, x) in rows_z_set)
+        if remove:
+            removed_count += 1
+        else:
+            survivors.append(cube)
+
+    # Drop survivors by number of distinct Y levels cleared below them
+    cleared_y_levels = sorted(set([y for (y, _) in full_rows_x] + [y for (y, _) in full_rows_z]))
+    for cube in survivors:
+        y = int(np.rint(cube.GetCubePos()[1]))
+        drop_levels_below = sum(1 for lvl in cleared_y_levels if y > lvl)
+        if drop_levels_below > 0:
+            cube.SetCubePos(cube.GetCubePos() + np.asfarray([0, -2 * drop_levels_below, 0]))
+
+    CubeList[:] = survivors
+
+    # Return number of individual rows cleared (not just levels)
+    return len(full_rows_x) + len(full_rows_z)
 
 class Piece:
     def __init__(self, position, color, name, filepath):
