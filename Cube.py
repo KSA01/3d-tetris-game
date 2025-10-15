@@ -43,9 +43,9 @@ _verts = np.float32([(1, -1, -1, 0, 0, -1, 0, 0),   # first - 8 vertices x 3
                     ])
 
 borders = (
-    (-4, 4),
+    (-8, 8),
     (-5, 30),
-    (-4, 4)
+    (-8, 8)
 )
 
 def Init():

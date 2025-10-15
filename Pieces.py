@@ -29,9 +29,9 @@ filepaths = (
 )
 
 borders = (
-    (-4, 4),
+    (-8, 8),
     (-5, 30),
-    (-4, 4)
+    (-8, 8)
 )
 
 pieceNames = ["I", "J", "L", "O", "S", "T", "Z"]  # List of pieces by name
@@ -81,7 +81,7 @@ def CheckForPoint():
     for cube in CubeList:
         if cube.GetCubePos()[1] <= -4.9:  # bottom y coord is -5
             count += 1
-    if count >= 16:  # if there are this many cubes at bottom
+    if count >= 64:  # if there are this many cubes at bottom (8x8 layer)
         count = 0
         return False
 

@@ -34,7 +34,7 @@ glDepthFunc(GL_LESS)
 glEnable(GL_BLEND)
 glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA)
 
-glTranslate(1.0, 0.0, -26.0)     #translates the camera
+glTranslate(1.0, 0.0, -32.0)     # move camera back to fit 8x8 grid
 #glRotate(-15, 0, 1, 0)           #rotate -15 degrees around y
 #glRotate(30, 1, 0, 0)            #rotate 30 degrees around x
 
