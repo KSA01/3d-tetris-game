@@ -18,6 +18,9 @@ import Camera
 
 score = 0 
 
+# Speed multiplier applied when holding Enter for fast drop
+FAST_DROP_MULTIPLIER = 4.0
+
 icons = (
     "Icons/IIcon.png",
     "Icons/JIcon.png",
@@ -36,6 +39,8 @@ def Init():
     #NEW
     global OnStart
     global moveUp, moveDown, moveLeft, moveRight, rotateLeft, rotateRight, rotateDown
+    # Fast drop flag (when holding Enter)
+    global fastDrop
 
     #Camera
     global camUp, camDown, camLeft, camRight
@@ -43,6 +48,9 @@ def Init():
     #Camera
 
     OnStart = True
+
+    # Fast drop starts disabled
+    fastDrop = False
 
     Pieces.Init() # Calls to run Cube Init() through Pieces file
     #Camera
@@ -53,6 +61,7 @@ def Init():
 
 def ProcessEvent(event):
     global moveUp, moveDown, moveLeft, moveRight, rotateLeft, rotateRight, rotateDown
+    global fastDrop
     
     #Camera
     global camUp, camDown, camLeft, camRight
@@ -74,6 +83,9 @@ def ProcessEvent(event):
             rotateRight = True
         elif event.key == pygame.K_s:
             rotateDown = True
+        elif event.key == pygame.K_RETURN:
+            # Enable fast drop while Enter is held
+            fastDrop = True
 
     #Camera
         if event.key == pygame.K_i:
@@ -85,6 +97,11 @@ def ProcessEvent(event):
         elif event.key == pygame.K_l:
             camRight = True
     #Camera
+
+    # Key released
+    if event.type == pygame.KEYUP:
+        if event.key == pygame.K_RETURN:
+            fastDrop = False
 
     return False
 
@@ -182,7 +199,10 @@ def Update(deltaTime, pieces):
             # retains y value for next collision check purposes
 
     # Check if piece hits the bottom or stacks
-    move = np.asfarray([0, -2*deltaTime, 0])
+    fall_speed = -2 * deltaTime
+    if fastDrop:
+        fall_speed *= FAST_DROP_MULTIPLIER
+    move = np.asfarray([0, fall_speed, 0])
 
     if move[1] + _piece.GetPos()[1] < 12:
         if move[1] + _piece.GetPos()[1] + _piece.cubes[0].GetCubePos()[1] <= -5.01 or \
