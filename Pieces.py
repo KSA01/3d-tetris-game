@@ -69,7 +69,7 @@ def freezeCubes(cube):
 def CheckForCeil():
     if CubeList:
         for cube in CubeList:
-            if np.rint(cube.GetCubePos()[1]) >= 6:
+            if np.rint(cube.GetCubePos()[1]) >= 8:
                 return False
     
     return True

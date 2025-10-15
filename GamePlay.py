@@ -152,7 +152,7 @@ def Update(deltaTime, pieces):
 
     if OnStart:
         _piece.ResetCubePos()
-        updatePos = (1, 12, -1)
+        updatePos = (1, 14, -1)
         _piece.SetPos(updatePos)
         OnStart = False
 
