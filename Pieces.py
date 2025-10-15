@@ -88,6 +88,58 @@ def CheckForPoint():
     return True
 #Alfredo
 
+# Check and clear any fully-filled horizontal layers (across X-Z) at any Y inside the border
+def ClearFullLayers():
+    if not CubeList:
+        return 0
+
+    # Map each Y level to set of occupied (x, z) grid positions
+    layer_to_positions = {}
+
+    x_min, x_max = borders[0]
+    z_min, z_max = borders[2]
+
+    for cube in CubeList:
+        pos = np.rint(cube.GetCubePos())
+        y = int(pos[1])
+        x = int(pos[0])
+        z = int(pos[2])
+
+        # Only consider cubes strictly inside the X/Z borders
+        if x <= x_min or x >= x_max or z <= z_min or z >= z_max:
+            continue
+
+        if y not in layer_to_positions:
+            layer_to_positions[y] = set()
+        layer_to_positions[y].add((x, z))
+
+    # A full 8x8 layer has 64 unique (x, z) positions
+    full_layers = sorted([y for y, positions in layer_to_positions.items() if len(positions) >= 64])
+
+    if not full_layers:
+        return 0
+
+    # Remove cubes that are in full layers
+    remaining_cubes = []
+    full_layers_set = set(full_layers)
+    for cube in CubeList:
+        y = int(np.rint(cube.GetCubePos()[1]))
+        if y in full_layers_set:
+            continue
+        remaining_cubes.append(cube)
+
+    # For each remaining cube, drop it down by 2 units for each cleared layer below it
+    for cube in remaining_cubes:
+        y = int(np.rint(cube.GetCubePos()[1]))
+        drop_layers_below = sum(1 for layer in full_layers if y > layer)
+        if drop_layers_below > 0:
+            cube.SetCubePos(cube.GetCubePos() + np.asfarray([0, -2 * drop_layers_below, 0]))
+
+    # Replace contents of CubeList in-place
+    CubeList[:] = remaining_cubes
+
+    return len(full_layers)
+
 class Piece:
     def __init__(self, position, color, name, filepath):
         #Smooth rotations
