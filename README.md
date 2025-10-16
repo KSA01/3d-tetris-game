@@ -12,7 +12,11 @@ Objective: Try to rotate the pieces as they fall so that they complete a row of 
 How to run this project:
 "git clone https://github.com/KSA01/3d-game" in the folder or directory you desire
 
-Open in VSCode or Visual Studio and run the main.py file
+Run these command line in the terminal to install all the dependencies:
+- pip3 install pipreqs (If you do not have pip installed)
+- pip3 install -r requirements.txt
+
+Open in VSCode or Visual Studio and run the "3dmain.py" file
 
 
 Making a new branch and switch to it: git checkout -b your_branch_name
