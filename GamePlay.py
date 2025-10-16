@@ -358,10 +358,10 @@ def Render():
     global icon_idx
     global score
 
-    # Fixed coordinate system for UI elements (original 640x750)
-    ui_width, ui_height = 640, 750
+    # Coordinate system for UI elements - matches screen width but keeps text fixed size
+    ui_width, ui_height = 900, 750
 
-    # Setting up orthographic projection for text rendering with fixed dimensions
+    # Setting up orthographic projection for text rendering
     glMatrixMode(GL_PROJECTION)
     glPushMatrix()
     glLoadIdentity()
