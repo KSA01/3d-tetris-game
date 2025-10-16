@@ -1,5 +1,14 @@
 # 3d-game
 
+How to play the game:
+
+Objective: Try to rotate the pieces as they fall so that they complete a row of blocks in any direction and once one axis row is filled it will dissapear and add 1 point to your tally. Keep playing the game until you lose by allowing a block to go above the border limit and your final score is calculated.
+
+- Use the left, right, up, and down arrow keys to move the pieces position
+- Use the "A", "S", and "D" keys to rotate the falling piece
+- Use the "I", "J", "K", and "L" keys to rotate the camera view
+- Hold the "Enter" key to speed up the piece drop
+
 How to run this project:
 "git clone https://github.com/KSA01/3d-game" in the folder or directory you desire
 
