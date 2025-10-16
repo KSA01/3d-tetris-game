@@ -118,7 +118,7 @@ def Init():
 class Cube:
     def __init__(self, localPos, color=([0,0,1,1]), filepath="blueberryI.png"):
         #super().__init__()
-        self.color = np.asfarray(color)
+        self.color = np.asarray(color, dtype=np.float32)
         self.ang = 0
         self.axis = (3,1,1)
         self.localPos = localPos   # Takes local positions of the current cube from pieces

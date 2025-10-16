@@ -1,19 +1,19 @@
 from OpenGL.GL import *
 import numpy as np
 
-_lightVector = np.asfarray([0, 0, 1, 0])  # Define a light vector for lighting effects
+_lightVector = np.asarray([0, 0, 1, 0], dtype=np.float32)  # Define a light vector for lighting effects
 
 class SlowTriangle:
     def __init__(self):
         # Define the vertices of the triangle around the origin
-        self.verts = np.asfarray([(0, 0, 0),
+        self.verts = np.asarray([(0, 0, 0),
                                   (0.5, 0, 0),
-                                  (0, 0.5, 0)])
+                                  (0, 0.5, 0)], dtype=np.float32)
         # Define the surfaces as a single triangle
         self.surfaces = np.array([(0, 1, 2)])
         # Define the normal to the surface of the triangle
-        self.normals = np.asfarray([(0, 0, 1, 0)])
-        self.color = np.asfarray([1, 0, 0])  # Red color for the triangle
+        self.normals = np.asarray([(0, 0, 1, 0)], dtype=np.float32)
+        self.color = np.asarray([1, 0, 0], dtype=np.float32)  # Red color for the triangle
 
         self.ang = 0  # Initial rotation angle
         self.axis = (0, 0, 1)  # Axis of rotation

@@ -211,7 +211,7 @@ def Update(deltaTime, pieces):
     fall_speed = -2 * deltaTime
     if fastDrop:
         fall_speed *= FAST_DROP_MULTIPLIER
-    move = np.asfarray([0, fall_speed, 0])
+    move = np.asarray([0, fall_speed, 0], dtype=np.float32)
 
     if move[1] + _piece.GetPos()[1] < 12:
         if move[1] + _piece.GetPos()[1] + _piece.cubes[0].GetCubePos()[1] <= -5.01 or \
@@ -358,14 +358,14 @@ def Render():
     global icon_idx
     global score
 
-    # screen size
-    width, height = 640, 750
+    # Fixed coordinate system for UI elements (original 640x750)
+    ui_width, ui_height = 640, 750
 
-    # Setting up orthographic projection for text rendering
+    # Setting up orthographic projection for text rendering with fixed dimensions
     glMatrixMode(GL_PROJECTION)
     glPushMatrix()
     glLoadIdentity()
-    gluOrtho2D(0, width, height, 0)
+    gluOrtho2D(0, ui_width, ui_height, 0)
     glMatrixMode(GL_MODELVIEW)
     glPushMatrix()
     glLoadIdentity()
@@ -377,7 +377,7 @@ def Render():
     UI.render_text("next", 40, 10, 28)
 
     # Render the score
-    UI.render_text(f"Score: {str(score)}", 475, 10, 16)
+    UI.render_text(f"Score: {str(score)}", 635, 10, 16)
 
     # Restore the previous projection and modelview matrices
     glPopMatrix()
