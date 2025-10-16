@@ -377,7 +377,7 @@ def Render():
     UI.render_text("next", 40, 10, 28)
 
     # Render the score
-    UI.render_text(f"Score: {str(score)}", 635, 10, 16)
+    UI.render_text(f"Score: {str(score)}", 735, 10, 16)
 
     # Restore the previous projection and modelview matrices
     glPopMatrix()

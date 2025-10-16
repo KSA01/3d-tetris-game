@@ -22,7 +22,7 @@ from freetype import *
 import pygame.freetype
 
 pygame.init()
-size = width, height = 800, 750
+size = width, height = 900, 750
 screen = pygame.display.set_mode(size, DOUBLEBUF|OPENGL)
 
 glMatrixMode(GL_PROJECTION)
