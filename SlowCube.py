@@ -4,7 +4,7 @@ from OpenGL.GL import *
 import numpy as np
 import math
 
-_lightVector = np.asfarray([0,0,1, 0])
+_lightVector = np.asarray([0,0,1, 0], dtype=np.float32)
 
 class SlowCube:
     def __init__(self, vertices, surfaces, color):
@@ -23,13 +23,13 @@ class SlowCube:
                                  (1,5,7,2),
                                  (4,0,3,6)])
         self.color = np.asfarray([0,0,1])'''
-        self.verts, self.surfaces, self.color = np.asfarray(vertices), np.asfarray(surfaces), np.asfarray(color)
-        self.normals = np.asfarray([(0,0,-1, 0),
+        self.verts, self.surfaces, self.color = np.asarray(vertices, dtype=np.float32), np.asarray(surfaces, dtype=np.int32), np.asarray(color, dtype=np.float32)
+        self.normals = np.asarray([(0,0,-1, 0),
                                    (-1,0,0, 0),
                                    (0,0,1, 0),
                                    (1,0,0, 0),
                                    (0,1,0, 0),
-                                   (0,-1,0, 0)])
+                                   (0,-1,0, 0)], dtype=np.float32)
         self.ang = 0
         self.axis = (3,1,1)
 

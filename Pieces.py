@@ -138,7 +138,7 @@ def ClearFullLayers():
         y = int(np.rint(cube.GetCubePos()[1]))
         drop_layers_below = sum(1 for layer in full_layers if y > layer)
         if drop_layers_below > 0:
-            cube.SetCubePos(cube.GetCubePos() + np.asfarray([0, -2 * drop_layers_below, 0]))
+            cube.SetCubePos(cube.GetCubePos() + np.asarray([0, -2 * drop_layers_below, 0], dtype=np.float32))
 
     CubeList[:] = remaining_cubes
 
@@ -233,7 +233,7 @@ def ClearFullRows():
         y = int(np.rint(cube.GetCubePos()[1]))
         drop_levels_below = sum(1 for lvl in cleared_y_levels if y > lvl)
         if drop_levels_below > 0:
-            cube.SetCubePos(cube.GetCubePos() + np.asfarray([0, -2 * drop_levels_below, 0]))
+            cube.SetCubePos(cube.GetCubePos() + np.asarray([0, -2 * drop_levels_below, 0], dtype=np.float32))
 
     CubeList[:] = survivors
 
@@ -277,7 +277,7 @@ class Piece:
         self.lastPosition = self.position #sets last position
         self.ang = 0
         self.axis = (3,1,1)             
-        self.color = np.asfarray(color)  #takes a different color for each piece
+        self.color = np.asarray(color, dtype=np.float32)  #takes a different color for each piece
 
         self.transforms = [np.eye(4) for _ in range(cubeCount)]
 
@@ -357,7 +357,7 @@ class Piece:
         #Tracks if the rotation has failed
         failed = False
 
-        center = np.asfarray(self.cubes[0].localPos)
+        center = np.asarray(self.cubes[0].localPos, dtype=np.float32)
 
         #The magnitude of the angle of rotation (in radians)
         mag = math.radians(90 * 6 * deltaTime)
@@ -450,7 +450,7 @@ class Piece:
 
         # Convert angle to radians
         angle = math.radians(angle)
-        center = np.asfarray(self.cubes[0].localPos)
+        center = np.asarray(self.cubes[0].localPos, dtype=np.float32)
         rotation_matrix = axis_rotation_matrix(angle, axis)
 
         # checks if cubes are in bounds before completing rotation
