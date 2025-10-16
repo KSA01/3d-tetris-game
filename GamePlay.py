@@ -18,6 +18,9 @@ import Camera
 
 score = 0 
 
+# Speed multiplier applied when holding Enter for fast drop
+FAST_DROP_MULTIPLIER = 4.0
+
 icons = (
     "Icons/IIcon.png",
     "Icons/JIcon.png",
@@ -36,6 +39,8 @@ def Init():
     #NEW
     global OnStart
     global moveUp, moveDown, moveLeft, moveRight, rotateLeft, rotateRight, rotateDown
+    # Fast drop flag (when holding Enter)
+    global fastDrop
 
     #Camera
     global camUp, camDown, camLeft, camRight
@@ -43,6 +48,9 @@ def Init():
     #Camera
 
     OnStart = True
+
+    # Fast drop starts disabled
+    fastDrop = False
 
     Pieces.Init() # Calls to run Cube Init() through Pieces file
     #Camera
@@ -53,6 +61,7 @@ def Init():
 
 def ProcessEvent(event):
     global moveUp, moveDown, moveLeft, moveRight, rotateLeft, rotateRight, rotateDown
+    global fastDrop
     
     #Camera
     global camUp, camDown, camLeft, camRight
@@ -74,6 +83,9 @@ def ProcessEvent(event):
             rotateRight = True
         elif event.key == pygame.K_s:
             rotateDown = True
+        elif event.key == pygame.K_RETURN:
+            # Enable fast drop while Enter is held
+            fastDrop = True
 
     #Camera
         if event.key == pygame.K_i:
@@ -85,6 +97,11 @@ def ProcessEvent(event):
         elif event.key == pygame.K_l:
             camRight = True
     #Camera
+    
+    # Key released
+    if event.type == pygame.KEYUP:
+        if event.key == pygame.K_RETURN:
+            fastDrop = False
 
     return False
 
@@ -152,7 +169,7 @@ def Update(deltaTime, pieces):
 
     if OnStart:
         _piece.ResetCubePos()
-        updatePos = (1, 12, -1)
+        updatePos = (1, 16, -1)
         _piece.SetPos(updatePos)
         OnStart = False
 
@@ -161,13 +178,21 @@ def Update(deltaTime, pieces):
         _piece.ToggleCubes(True, False)
 
     # checks if bottom row is filled
-    if not Pieces.CheckForPoint():
+    '''if not Pieces.CheckForPoint():
         for cube in Pieces.CubeList:
             if cube.GetCubePos()[1] <= -4.9:
                 Pieces.CubeList.remove(cube)   # removes any cubes at bottom from cube list
         for cube in Pieces.CubeList:
             cube.MoveCubeDown() # sets all remaining cubes y position 2 down
-        update_score(1)
+        update_score(1)'''
+    # Clear filled structures each frame; prefer full layers, then full rows, then bottom fallback
+    cleared = Pieces.ClearFullLayers()
+    if cleared == 0:
+        cleared = Pieces.ClearFullRows()
+    if cleared == 0:
+        cleared = Pieces.ClearBottomRowFallback()
+    if cleared > 0:
+        update_score(cleared)
 
     # proof check if any cube are below bottom
     for cube in Pieces.CubeList:
@@ -182,7 +207,11 @@ def Update(deltaTime, pieces):
             # retains y value for next collision check purposes
 
     # Check if piece hits the bottom or stacks
-    move = np.asfarray([0, -2*deltaTime, 0])
+    #move = np.asfarray([0, -2*deltaTime, 0])
+    fall_speed = -2 * deltaTime
+    if fastDrop:
+        fall_speed *= FAST_DROP_MULTIPLIER
+    move = np.asfarray([0, fall_speed, 0])
 
     if move[1] + _piece.GetPos()[1] < 12:
         if move[1] + _piece.GetPos()[1] + _piece.cubes[0].GetCubePos()[1] <= -5.01 or \
@@ -211,6 +240,15 @@ def Update(deltaTime, pieces):
                 staticCube = copy.deepcopy(cube)
                 staticCube.SetCubePos(cube.GetCubePos() + np.rint(_piece.GetPos()))
                 Pieces.freezeCubes(staticCube)
+                
+            # After freezing, clear any full layers formed (or bottom fallback) and update score
+            cleared = Pieces.ClearFullLayers()
+            if cleared == 0:
+                cleared = Pieces.ClearFullRows()
+            if cleared == 0:
+                cleared = Pieces.ClearBottomRowFallback()
+            if cleared > 0:
+                update_score(cleared)
 
             OnStart = True
             move[1] += 24
