@@ -31,16 +31,19 @@ icons = (
     "Icons/ZIcon.png"
 )
 
-def Init():
+def Init(pieces=None):
     global _piece
     #NEW
     global _nextPiece
     global nextIndex
+    global index
+    global icon_idx
     #NEW
     global OnStart
     global moveUp, moveDown, moveLeft, moveRight, rotateLeft, rotateRight, rotateDown
     # Fast drop flag (when holding Enter)
     global fastDrop
+    global score
 
     #Camera
     global camUp, camDown, camLeft, camRight
@@ -52,12 +55,31 @@ def Init():
     # Fast drop starts disabled
     fastDrop = False
 
+    # Reset score
+    score = 0
+
+    # Reset piece indices
+    index = random.randint(0, 6)
+    nextIndex = random.randint(0, 6)
+    icon_idx = nextIndex
+
+    # Initialize _piece if pieces are provided
+    if pieces and len(pieces) > 0:
+        _piece = pieces[index]
+    else:
+        # Set _piece to None temporarily - it will be set in Update()
+        _piece = None
+
     Pieces.Init() # Calls to run Cube Init() through Pieces file
     #Camera
     Camera.Init()
     #Camera
 
     moveUp, moveDown, moveLeft, moveRight, rotateLeft, rotateRight, rotateDown = False, False, False, False, False, False, False
+
+def Reset(pieces=None):
+    """ Reset the game to initial state """
+    Init(pieces)
 
 def ProcessEvent(event):
     global moveUp, moveDown, moveLeft, moveRight, rotateLeft, rotateRight, rotateDown
@@ -105,14 +127,10 @@ def ProcessEvent(event):
 
     return False
 
-index = random.randint(0, 6)
-#NEW
-#Get a random index for the next piece
-nextIndex = random.randint(0, 6)
-#NEW
-
-#Set the next piece display
-icon_idx = nextIndex
+# Global variables will be initialized in Init()
+index = 0
+nextIndex = 0
+icon_idx = 0
 
 _isGamePaused = False  # A new global variable to track the pause state
 
@@ -135,7 +153,8 @@ def Pause():
     _isGamePaused = True
 
     #Toggle current piece to disappear
-    _piece.ToggleCubes(False, True)
+    if _piece is not None:
+        _piece.ToggleCubes(False, True)
     # trigger all cubes on screen to disappear (on final assignment)
     ToggleVisible(Pieces.CubeList, False, True)
 
@@ -146,7 +165,8 @@ def Resume():
     _isGamePaused = False
  
     #Toggle current piece to appear
-    _piece.ToggleCubes(True, False)
+    if _piece is not None:
+        _piece.ToggleCubes(True, False)
     # trigger all cubes on screen to appear (on final assignment)
     ToggleVisible(Pieces.CubeList, True, False)
 
@@ -385,7 +405,9 @@ def Render():
     glPopMatrix()
     glMatrixMode(GL_MODELVIEW)
 
-    _piece.Render()
+    # Only render _piece if it exists
+    if _piece is not None:
+        _piece.Render()
     
     if Pieces.CubeList:
         for cube in Pieces.CubeList:

@@ -41,6 +41,15 @@ tetrisPieces = []
 
 CubeList = []
 
+def Init():
+    """ Initialize/reset the Pieces module by clearing the CubeList """
+    global CubeList
+    CubeList = []
+    # Make sure Cube.Init() is called to initialize shaders
+    # This is safe to call multiple times
+    import Cube
+    Cube.Init()
+
 # A function to create Tetris pieces
 def createTetrisPieces():
 
@@ -127,9 +136,11 @@ def ClearFullLayers():
     # Remove cubes that are in full layers
     remaining_cubes = []
     full_layers_set = set(full_layers)
+    blocks_removed = 0
     for cube in CubeList:
         y = int(np.rint(cube.GetCubePos()[1]))
         if y in full_layers_set:
+            blocks_removed += 1
             continue
         remaining_cubes.append(cube)
 
@@ -142,7 +153,7 @@ def ClearFullLayers():
 
     CubeList[:] = remaining_cubes
 
-    return len(full_layers)
+    return blocks_removed
 
 # Fallback: handle bottom row clearing with tolerant thresholding
 def ClearBottomRowFallback():
@@ -162,13 +173,14 @@ def ClearBottomRowFallback():
 
     # Remove bottom cubes
     survivors = [cube for cube in CubeList if cube.GetCubePos()[1] > bottom_y_threshold]
+    blocks_removed = len(bottom_cubes)
 
     # Move survivors down by 2
     for cube in survivors:
         cube.MoveCubeDown()
 
     CubeList[:] = survivors
-    return 1
+    return blocks_removed
 
 # Clear any fully filled rows inside the border at any Y (both X-rows and Z-rows)
 def ClearFullRows():
@@ -237,8 +249,8 @@ def ClearFullRows():
 
     CubeList[:] = survivors
 
-    # Return number of individual rows cleared (not just levels)
-    return len(full_rows_x) + len(full_rows_z)
+    # Return number of blocks removed
+    return removed_count
 
 class Piece:
     def __init__(self, position, color, name, filepath):

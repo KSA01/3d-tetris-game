@@ -48,6 +48,15 @@ borders = (
     (-6, 6)
 )
 
+# Initialize shader variables to None
+_shader = None
+_vbo = None
+_uniformInv = None
+_position = None
+_color = None
+_vertex_normal = None
+_uv_coords = None
+
 def Init():
     global _shader
     global _vbo
@@ -203,6 +212,13 @@ class Cube:
         global _vertex_normal
         global _uv_coords
 
+        # Make sure shader is initialized (lazy initialization)
+        try:
+            if _shader is None:
+                Init()
+        except NameError:
+            # _shader doesn't exist yet, initialize it
+            Init()
         
         #Set the texture of the block
         self.fruit_texture.use()
