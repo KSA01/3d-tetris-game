@@ -44,6 +44,7 @@ def Init(pieces=None):
     # Fast drop flag (when holding Enter)
     global fastDrop
     global score
+    global _isGamePaused
 
     #Camera
     global camUp, camDown, camLeft, camRight
@@ -54,6 +55,9 @@ def Init(pieces=None):
 
     # Fast drop starts disabled
     fastDrop = False
+
+    # Reset pause state
+    _isGamePaused = False
 
     # Reset score
     score = 0
@@ -373,31 +377,31 @@ def Update(deltaTime, pieces):
         camRight = False
     #Camera
 
-def Render():
+def Render(screen_width=900, screen_height=750):
     global _piece
     global icon_idx
     global score
-
-    # Coordinate system for UI elements - matches screen width but keeps text fixed size
-    ui_width, ui_height = 900, 750
 
     # Setting up orthographic projection for text rendering
     glMatrixMode(GL_PROJECTION)
     glPushMatrix()
     glLoadIdentity()
-    gluOrtho2D(0, ui_width, ui_height, 0)
+    gluOrtho2D(0, screen_width, screen_height, 0)
     glMatrixMode(GL_MODELVIEW)
     glPushMatrix()
     glLoadIdentity()
     
-    #Render the image
+    #Render the image (fixed position from left edge)
     UI.render_image(50, 50, 100, 100, image_path=icons[icon_idx])
 
-    # Render the text
+    # Render the text (fixed position from left edge)
     UI.render_text("next", 40, 10, 28)
 
-    # Render the score
-    UI.render_text(f"Score: {str(score)}", 735, 10, 16)
+    # Render the score (fixed position from right edge)
+    score_text = f"Score: {str(score)}"
+    score_width, _ = UI.get_text_size(score_text, 16)
+    score_x = screen_width - score_width - 50  # 50 pixels from right edge
+    UI.render_text(score_text, score_x, 10, 16)
 
     # Restore the previous projection and modelview matrices
     glPopMatrix()

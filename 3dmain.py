@@ -24,7 +24,7 @@ from freetype import *
 import pygame.freetype
 
 pygame.init()
-size = width, height = 900, 750
+size = width, height = 1200, 750
 screen = pygame.display.set_mode(size, DOUBLEBUF|OPENGL)
 
 glMatrixMode(GL_PROJECTION)
@@ -106,6 +106,7 @@ def Update(deltaTime):
                     if result == 'play_again':
                         try:
                             GamePlay.Reset(tetrisPieces)
+                            GamePlay.Resume()  # Ensure game is unpaused after reset
                             game_state = 'playing'
                             _isGameOver = False
                             _isPaused = False
@@ -156,8 +157,8 @@ def Render():
     glClear(GL_COLOR_BUFFER_BIT|GL_DEPTH_BUFFER_BIT)
 
     if game_state == 'start_menu':
-        # Render start menu
-        start_button_bounds = StartMenu.Render()
+        # Render start menu with dynamic screen size
+        start_button_bounds = StartMenu.Render(width, height)
         
         # Update cursor based on button hover
         mouse_x, mouse_y = pygame.mouse.get_pos()
@@ -196,8 +197,8 @@ def Render():
         glVertex2f(0, height)
         glEnd()
         
-        # Render the game over menu on top (depth test already disabled)
-        play_again_bounds, quit_bounds = GameOver.Render()
+        # Render the game over menu on top (depth test already disabled) with dynamic screen size
+        play_again_bounds, quit_bounds = GameOver.Render(width, height)
         
         # Update cursor based on button hover
         mouse_x, mouse_y = pygame.mouse.get_pos()
@@ -223,7 +224,7 @@ def Render():
         #Render Border first so transparency works correctly
         Border.Render()
 
-        GamePlay.Render()
+        GamePlay.Render(width, height)
         
         #UI TEST
         #triangle.Render()
